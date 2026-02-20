@@ -1,0 +1,18 @@
+# python
+__pycache__/
+*.py[cod]
+
+# environments
+.venv/
+venv/
+env/
+
+# os
+.DS_Store
+Thumbs.db
+
+# project specific
+out/
+*.zip
+runs/
+tb_logs/
