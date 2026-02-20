@@ -1,0 +1,24 @@
+<configuration>
+    <input>
+        <net-file value="network.net.xml"/>
+        
+        <route-files value="traffic.rou.xml"/>
+		<additional-files value="detectors.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="4200"/>
+    </time>
+
+	<processing>
+		<step-length value="1"/>
+		<time-to-teleport value="-1"/> 
+		<collision.action value="warn"/> 
+		<collision.mingap-factor value="0"/> 
+	</processing>
+
+    <output>
+        <tripinfo-output value="tripinfo.xml"/>
+    </output>
+</configuration>

@@ -1,0 +1,22 @@
+<configuration>
+    <input>
+        <net-file value="network.net.xml"/>
+
+        <route-files value="traffic.rou.xml"/>
+		<additional-files value="../additional/detectors.add.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="4200"/>
+    </time>
+
+	<processing>
+	   <step-length value="1"/>
+		<time-to-teleport value="-1"/>
+	</processing>
+
+    <output>
+        <tripinfo-output value="../out/tripinfo.xml"/>
+    </output>
+</configuration>

@@ -1,0 +1,17 @@
+<additional>
+    <inductionLoop id="det_loc1_0" lane="edge_merge_0" pos="15" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc1_1" lane="edge_merge_1" pos="15" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc1_2" lane="edge_merge_2" pos="15" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc1_3" lane="edge_merge_3" pos="15" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc1_4" lane="edge_merge_4" pos="15" freq="1" file="../out/det_out.xml"/>
+
+    <inductionLoop id="det_loc2_0" lane="edge_downstream_0" pos="225" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc2_1" lane="edge_downstream_1" pos="225" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc2_2" lane="edge_downstream_2" pos="225" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc2_3" lane="edge_downstream_3" pos="225" freq="1" file="../out/det_out.xml"/>
+
+    <inductionLoop id="det_loc3_0" lane="edge_downstream_0" pos="475" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc3_1" lane="edge_downstream_1" pos="475" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc3_2" lane="edge_downstream_2" pos="475" freq="1" file="../out/det_out.xml"/>
+    <inductionLoop id="det_loc3_3" lane="edge_downstream_3" pos="475" freq="1" file="../out/det_out.xml"/>
+</additional>
