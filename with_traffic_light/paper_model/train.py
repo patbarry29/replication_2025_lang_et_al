@@ -53,7 +53,7 @@ def get_traffic_state(last_green_duration):
     ramp_dep = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_DEP_DETS])
 
     # Queue length is calculated by counting halting vehicles (speed < 0.1 m/s) on the ramp edge
-    queue_length = traci.edge.getLastStepHaltingNumber("edge_ramp")
+    queue_length = traci.edge.getLastStepVehicleNumber("edge_ramp")
 
     state.extend([queue_length, ramp_arr, ramp_dep, last_green_duration])
 
@@ -134,8 +134,9 @@ def train(use_replacement=False):
 
                 # If the agent's action violates the constraint, override it
                 if env_action < lower_bound:
-                    env_action = lower_bound
-                    step_penalty = calculate_penalty(curr_queue, curr_demand, env_action)
+                    # Calculate penalty on the unsafe action before overriding
+                    step_penalty = calculate_penalty(curr_queue, curr_demand, env_action.item())
+                    env_action = torch.tensor(lower_bound)
 
             # Environment Step using the potentially replaced action
             base_reward = apply_action_and_get_reward(env_action, TLS_ID, MAX_TTS, AVG_TTS)
@@ -146,7 +147,7 @@ def train(use_replacement=False):
             current_green_duration = int(env_action * 15)
             raw_next_state = get_traffic_state(current_green_duration)
             next_state = normalize_state(raw_next_state, state_tracker)
-            done = (step == CONTROL_STEPS_PER_EPISODE - 1)
+            done = (step == CONTROL_STEPS_PER_EPISODE - 1) or (curr_queue > 0.9 * 42.0)
 
             states.append(state_tensor)
             actions.append(raw_action)
@@ -161,6 +162,9 @@ def train(use_replacement=False):
 
             # Update previous demand for the next control step calculation
             prev_demand = curr_demand
+
+            if done:
+                break
 
         with torch.no_grad():
             _, next_value = agent(torch.FloatTensor(state).unsqueeze(0))
