@@ -16,15 +16,33 @@ from action_replacement import calculate_lower_bound, calculate_penalty
 STATE_DIM = 10
 CONTROL_STEPS_PER_EPISODE = 240
 SIM_STEPS_PER_CONTROL = 15
+NUM_EPISODES = 2
+MAX_SPEED = 27.78
 
+MAX_TTS = 4470.0
+AVG_TTS = 3556.64
+TLS_ID = "1494194482"
 SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
-
 
 # Define detector ID lists matching your XML configuration
 UPSTREAM_DETS = [f"det_upstream_{i}" for i in range(4)]
 DOWNSTREAM_DETS = [f"det_loc2_{i}" for i in range(4)] + [f"det_loc3_{i}" for i in range(4)]
 RAMP_ARR_DETS = [f"det_ramp_arr_{i}" for i in range(2)]
 RAMP_DEP_DETS = [f"det_ramp_dep_{i}" for i in range(2)]
+
+def get_traffic_state(last_green_duration, ramp_arr, ramp_dep, upstream, downstream):
+    """Build the state vector using pre-aggregated (averaged) detector readings
+    from the previous 15-second control interval.
+    """
+    state = []
+    state.extend([upstream['occ'], upstream['speed'], upstream['veh']])
+    state.extend([downstream['occ'], downstream['speed'], downstream['veh']])
+
+    # Queue is an instantaneous snapshot (not averaged)
+    queue_length = traci.edge.getLastStepVehicleNumber("edge_ramp")
+    state.extend([queue_length, ramp_arr, ramp_dep, last_green_duration])
+
+    return state
 
 def normalize_state(raw_state, tracker):
     raw_state = np.array(raw_state)
@@ -33,59 +51,76 @@ def normalize_state(raw_state, tracker):
     std[std == 0] = 1e-8 # Prevent division by zero
     return (raw_state - tracker.mean) / std
 
-def get_traffic_state(last_green_duration):
-    state = []
+def apply_action_and_get_reward(action_ratio):
+    """Run one 15s control step and return reward + averaged detector stats."""
 
-    # 1. Mainline State: Upstream
-    up_occ = np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in UPSTREAM_DETS])
-    up_speed = np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in UPSTREAM_DETS])
-    up_veh = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in UPSTREAM_DETS])
-    state.extend([up_occ, up_speed, up_veh])
-
-    # 2. Mainline State: Downstream
-    down_occ = np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in DOWNSTREAM_DETS])
-    down_speed = np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in DOWNSTREAM_DETS])
-    down_veh = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in DOWNSTREAM_DETS])
-    state.extend([down_occ, down_speed, down_veh])
-
-    # 3. Ramp State
-    ramp_arr = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_ARR_DETS])
-    ramp_dep = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_DEP_DETS])
-
-    # Queue length is calculated by counting halting vehicles (speed < 0.1 m/s) on the ramp edge
-    queue_length = traci.edge.getLastStepVehicleNumber("edge_ramp")
-
-    state.extend([queue_length, ramp_arr, ramp_dep, last_green_duration])
-
-    return state
-
-def apply_action_and_get_reward(action_ratio, tls_id, max_tts, avg_tts):
-    # Action is a continuous value in [0, 1]
-    # Total control step is 15 simulation seconds
-    green_duration = int(action_ratio * 15)
-    red_duration = 15 - green_duration
+    green = int(action_ratio * 15)
+    red = 15 - green
 
     tts = 0
+    n_steps = 0
 
-    # 1. Execute the Green Phase
-    if green_duration > 0:
-        # "GG" assumes a 2-lane ramp. Replace with your exact SUMO phase string.
-        traci.trafficlight.setRedYellowGreenState(tls_id, "GGGGGG")
-        for _ in range(green_duration):
+    unique_arr_ids = set()
+    unique_dep_ids = set()
+
+    # Accumulators
+    stats = {
+        "up":   {"occ": 0.0, "speed": 0.0, "veh": 0.0},
+        "down": {"occ": 0.0, "speed": 0.0, "veh": 0.0},
+    }
+
+    def aggregate(detectors):
+        occ = np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in detectors])
+
+        raw_speeds = [traci.inductionloop.getLastStepMeanSpeed(d) for d in detectors]
+        speeds = [s if s != -1.0 else MAX_SPEED for s in raw_speeds]
+        speed = np.mean(speeds)
+
+        veh = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in detectors])
+        return occ, speed, veh
+
+    def poll():
+        nonlocal n_steps
+
+        # ramp vehicles (unique IDs)
+        for d in RAMP_ARR_DETS:
+            unique_arr_ids.update(traci.inductionloop.getLastStepVehicleIDs(d))
+        for d in RAMP_DEP_DETS:
+            unique_dep_ids.update(traci.inductionloop.getLastStepVehicleIDs(d))
+
+        # upstream / downstream
+        for name, dets in [("up", UPSTREAM_DETS), ("down", DOWNSTREAM_DETS)]:
+            occ, speed, veh = aggregate(dets)
+            stats[name]["occ"]   += occ
+            stats[name]["speed"] += speed
+            stats[name]["veh"]   += veh
+
+        n_steps += 1
+
+    # --- Run phases ---
+    for duration, state in [(green, "GGGGGG"), (red, "GGGGrr")]:
+        if duration <= 0:
+            continue
+
+        traci.trafficlight.setRedYellowGreenState(TLS_ID, state)
+        for _ in range(duration):
             traci.simulationStep()
             tts += traci.vehicle.getIDCount()
+            poll()
 
-    # 2. Execute the Red Phase
-    if red_duration > 0:
-        traci.trafficlight.setRedYellowGreenState(tls_id, "GGGGrr")
-        for _ in range(red_duration):
-            traci.simulationStep()
-            tts += traci.vehicle.getIDCount()
+    # --- Compute outputs ---
+    n = max(n_steps, 1)
 
-    # 3. Calculate Reward
-    reward = (max_tts - tts) / avg_tts
+    reward = (MAX_TTS - tts) / AVG_TTS
 
-    return reward
+    agg_ramp_arr = len(unique_arr_ids) / n
+    agg_ramp_dep = len(unique_dep_ids) / n
+
+    for location in stats:
+        for key in stats[location]:
+            stats[location][key] /= n
+
+    return reward, agg_ramp_arr, agg_ramp_dep, stats["up"], stats["down"]
 
 def train(use_replacement=False):
     agent = SharedActorCritic(STATE_DIM)
@@ -94,73 +129,101 @@ def train(use_replacement=False):
     sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true"]
     traci.start(sumo_cmd)
 
-    # Replace with your calibrated values
-    MAX_TTS = 4470.0
-    AVG_TTS = 3556.64
-    TLS_ID = "1494194482"
-
     line, ax, fig = init_plot()
     all_scores = []
 
-    for episode in range(100):
+    for episode in range(1, NUM_EPISODES+1):
         states, actions, log_probs, values, rewards, dones = [], [], [], [], [], []
 
         traci.load(["-c", SUMO_PATH])
 
-        # Initialize tracking variable for the first step
-        last_green_duration = 0
-        raw_state = get_traffic_state(last_green_duration)
+        # Bootstrap: run 15 sim steps to seed the initial state with averaged detector readings
+        _, _ra, _rd, _up, _dn = apply_action_and_get_reward(
+            action_ratio=0.0,  # neutral start
+        )
+
+        last_green_duration = int(0.0 * 15)
+
+        raw_state = get_traffic_state(last_green_duration, _ra, _rd, _up, _dn)
         state = normalize_state(raw_state, state_tracker)
 
         prev_demand = raw_state[7]
 
         for step in range(CONTROL_STEPS_PER_EPISODE):
-            state_tensor = torch.FloatTensor(state).unsqueeze(0)
+            state_tensor = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0)
 
-            curr_queue = raw_state[6]
+            curr_queue  = raw_state[6]
             curr_demand = raw_state[7]
 
+            # ---- Policy ----
             with torch.no_grad():
-                dist, state_value = agent(state_tensor)
+                dist, value = agent(state_tensor)
                 raw_action = dist.sample()
                 log_prob = dist.log_prob(raw_action)
 
-                env_action = torch.clamp(raw_action, 0.0, 1.0)
+            action = torch.clamp(raw_action, 0.0, 1.0).item()
+            penalty = 0.0
 
-            step_penalty = 0.0
-
+            # ---- Replacement logic ----
             if use_replacement:
                 lower_bound = calculate_lower_bound(prev_demand, curr_queue)
 
-                # If the agent's action violates the constraint, override it
-                if env_action < lower_bound:
-                    # Calculate penalty on the unsafe action before overriding
-                    step_penalty = calculate_penalty(curr_queue, curr_demand, env_action.item())
-                    env_action = torch.tensor(lower_bound)
+                if action < lower_bound:
+                    penalty = calculate_penalty(curr_queue, curr_demand, action)
+                    print(
+                        f"[Replacement] Step {step} | "
+                        f"Agent: {action:.3f} | "
+                        f"LowerBound: {lower_bound:.3f} | "
+                        f"Penalty: {penalty:.3f}"
+                    )
+                    action = lower_bound
 
-            # Environment Step using the potentially replaced action
-            base_reward = apply_action_and_get_reward(env_action, TLS_ID, MAX_TTS, AVG_TTS)
+            # ---- Environment step ----
+            base_reward, avg_ra, avg_rd, agg_up, agg_down = \
+                apply_action_and_get_reward(action)
 
-            # Apply the penalty to the environment reward
-            reward = base_reward - step_penalty
+            reward = base_reward - penalty
 
-            current_green_duration = int(env_action * 15)
-            raw_next_state = get_traffic_state(current_green_duration)
+            # ---- Next state ----
+            green_duration = int(action * 15)
+
+            raw_next_state = get_traffic_state(
+                green_duration, avg_ra, avg_rd, agg_up, agg_down
+            )
             next_state = normalize_state(raw_next_state, state_tracker)
-            done = (step == CONTROL_STEPS_PER_EPISODE - 1) or (curr_queue > 0.9 * 42.0)
 
+            final_queue = raw_next_state[6]
+            spillback = final_queue > 0.9 * 42.0
+
+            # ---- Termination logic ----
+            if spillback:
+                reward -= 10.0
+                done = True
+                print(
+                    f"[FAILURE] Step {step} | "
+                    f"Queue {final_queue:.0f} | "
+                    f"Reward {reward:.3f}"
+                )
+            else:
+                done = (step == CONTROL_STEPS_PER_EPISODE - 1)
+                print(
+                    f"Step {step} | "
+                    f"Q {curr_queue:.0f} → {final_queue:.0f} | "
+                    f"Demand {curr_demand:.2f} | "
+                    f"Reward {reward:.3f}"
+                )
+
+            # ---- Store trajectory ----
             states.append(state_tensor)
             actions.append(raw_action)
             log_probs.append(log_prob)
-            values.append(state_value)
+            values.append(value)
             rewards.append(reward)
             dones.append(done)
 
+            # ---- Advance ----
             state = next_state
             raw_state = raw_next_state
-            last_green_duration = current_green_duration
-
-            # Update previous demand for the next control step calculation
             prev_demand = curr_demand
 
             if done:
@@ -185,6 +248,7 @@ def train(use_replacement=False):
 
         if episode % 10 == 0:
             save_path = os.path.join("models", f"model_ep{episode}.pth")
+            os.makedirs("models", exist_ok=True)
             torch.save(agent.state_dict(), save_path)
 
             with open(os.path.join("models", f"state_tracker_ep{episode}.pkl"), "wb") as f:

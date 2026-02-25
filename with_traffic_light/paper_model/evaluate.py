@@ -7,7 +7,8 @@ import torch
 import traci
 
 from model import SharedActorCritic
-from train import get_traffic_state
+from train import get_traffic_state, apply_action_and_get_reward, UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS
+from action_replacement import calculate_lower_bound
 
 # --- Hyperparameters ---
 STATE_DIM = 10
@@ -16,30 +17,46 @@ SIM_STEPS_PER_CONTROL = 15
 
 SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
 
-# Define detector ID lists matching your XML configuration
-UPSTREAM_DETS = [f"det_upstream_{i}" for i in range(4)]
-DOWNSTREAM_DETS = [f"det_loc2_{i}" for i in range(4)] + [f"det_loc3_{i}" for i in range(4)]
-RAMP_ARR_DETS = [f"det_ramp_arr_{i}" for i in range(2)]
-RAMP_DEP_DETS = [f"det_ramp_dep_{i}" for i in range(2)]
-
 TLS_ID = "1494194482"
 
 def evaluate_model(model_path, state_tracker):
     agent = SharedActorCritic(STATE_DIM)
     agent.load_state_dict(torch.load(model_path))
-    agent.eval() # Set to deterministic evaluation mode
+    agent.eval()
 
-    # Use sumo-gui for visual inspection
     sumo_cmd = ["sumo-gui", "-c", SUMO_PATH, "--start"]
     traci.start(sumo_cmd)
 
     time.sleep(5)
 
+    # Bootstrap: run 15 sim steps to get initial aggregated detector readings
     last_green_duration = 0
-    raw_state = get_traffic_state(last_green_duration)
+    init_ramp_arr, init_ramp_dep = 0, 0
+    init_up = {'occ': 0.0, 'speed': 0.0, 'veh': 0.0}
+    init_down = {'occ': 0.0, 'speed': 0.0, 'veh': 0.0}
+    for _ in range(SIM_STEPS_PER_CONTROL):
+        traci.simulationStep()
+        init_ramp_arr += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_ARR_DETS])
+        init_ramp_dep += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_DEP_DETS])
+        init_up['occ'] += np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in UPSTREAM_DETS])
+        init_up['speed'] += np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in UPSTREAM_DETS])
+        init_up['veh'] += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in UPSTREAM_DETS])
+        init_down['occ'] += np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in DOWNSTREAM_DETS])
+        init_down['speed'] += np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in DOWNSTREAM_DETS])
+        init_down['veh'] += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in DOWNSTREAM_DETS])
+    init_up['occ'] /= SIM_STEPS_PER_CONTROL
+    init_up['speed'] /= SIM_STEPS_PER_CONTROL
+    init_up['veh'] /= SIM_STEPS_PER_CONTROL
+    init_down['occ'] /= SIM_STEPS_PER_CONTROL
+    init_down['speed'] /= SIM_STEPS_PER_CONTROL
+    init_down['veh'] /= SIM_STEPS_PER_CONTROL
+    init_ramp_arr /= SIM_STEPS_PER_CONTROL
+    init_ramp_dep /= SIM_STEPS_PER_CONTROL
 
-    # Must use the exact mean/std tracker saved from the training run
+    raw_state = get_traffic_state(last_green_duration, init_ramp_arr, init_ramp_dep, init_up, init_down)
     state = normalize_state_eval(raw_state, state_tracker)
+
+    prev_demand = raw_state[7]
 
     total_tts = 0
     max_queue = 0
@@ -49,40 +66,39 @@ def evaluate_model(model_path, state_tracker):
 
         with torch.no_grad():
             dist, _ = agent(state_tensor)
-            # Use the mean of the distribution for deterministic evaluation, do not sample
             action = dist.mean
-            action = torch.clamp(action, 0.0, 1.0)
+            env_action = torch.clamp(action, 0.0, 1.0)
 
-        green_duration = int(action.item() * 15)
-        red_duration = 15 - green_duration
+        curr_queue = raw_state[6]
+        curr_demand = raw_state[7]
 
-        # Execute Green Phase
-        if green_duration > 0:
-            traci.trafficlight.setRedYellowGreenState(TLS_ID, "GGGGGG")
-            for _ in range(green_duration):
-                traci.simulationStep()
-                total_tts += traci.vehicle.getIDCount()
-                current_queue = traci.edge.getLastStepVehicleNumber("edge_ramp")
-                max_queue = max(max_queue, current_queue)
+        # Action replacement
+        lower_bound = calculate_lower_bound(prev_demand, curr_queue)
+        replaced = False
+        if env_action.item() < lower_bound:
+            env_action = torch.tensor(lower_bound)
+            replaced = True
 
-        # Execute Red Phase
-        if red_duration > 0:
-            traci.trafficlight.setRedYellowGreenState(TLS_ID, "GGGGrr")
-            for _ in range(red_duration):
-                traci.simulationStep()
-                total_tts += traci.vehicle.getIDCount()
-                current_queue = traci.edge.getLastStepVehicleNumber("edge_ramp")
-                max_queue = max(max_queue, current_queue)
+        print(f"Eval Step {step} | Raw Action: {action.item():.3f} | Replaced: {replaced} (LB: {lower_bound:.3f}) | Exec Green: {int(env_action.item() * 15)}s | Queue: {curr_queue} | Demand/s: {curr_demand:.2f}")
 
-        raw_next_state = get_traffic_state(green_duration)
+        # Environment step with aggregated polling
+        reward, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down = apply_action_and_get_reward(env_action, TLS_ID, 4470.0, 3556.64)
+
+        # Track TTS and max queue from the post-step snapshot
+        current_queue = traci.edge.getLastStepVehicleNumber("edge_ramp")
+        max_queue = max(max_queue, current_queue)
+
+        green_duration = int(env_action.item() * 15)
+        raw_next_state = get_traffic_state(green_duration, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down)
         state = normalize_state_eval(raw_next_state, state_tracker)
 
+        raw_state = raw_next_state
+        prev_demand = curr_demand
+
     traci.close()
-    print(f"Evaluation Complete. Total TTS: {total_tts}, Max Queue: {max_queue}")
+    print(f"Evaluation Complete. Max Queue: {max_queue}")
 
 def normalize_state_eval(raw_state, tracker):
-    # During evaluation, do not push new states to the tracker
-    # Only normalize using the frozen mean and std from training
     raw_state = np.array(raw_state)
     std = tracker.std()
     std[std == 0] = 1e-8
