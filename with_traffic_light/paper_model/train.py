@@ -16,12 +16,12 @@ from action_replacement import calculate_lower_bound, calculate_penalty
 STATE_DIM = 10
 CONTROL_STEPS_PER_EPISODE = 240
 SIM_STEPS_PER_CONTROL = 15
-NUM_EPISODES = 2
+NUM_EPISODES = 100
 MAX_SPEED = 27.78
 
-MAX_TTS = 4470.0
-AVG_TTS = 3556.64
-TLS_ID = "1494194482"
+MAX_TTS = 4119.0
+AVG_TTS = 3405.64
+TLS_ID = "junction_ramp"
 SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
 
 # Define detector ID lists matching your XML configuration
@@ -39,7 +39,7 @@ def get_traffic_state(last_green_duration, ramp_arr, ramp_dep, upstream, downstr
     state.extend([downstream['occ'], downstream['speed'], downstream['veh']])
 
     # Queue is an instantaneous snapshot (not averaged)
-    queue_length = traci.edge.getLastStepVehicleNumber("edge_ramp")
+    queue_length = traci.edge.getLastStepVehicleNumber("edge_ramp_2")
     state.extend([queue_length, ramp_arr, ramp_dep, last_green_duration])
 
     return state
@@ -139,10 +139,10 @@ def train(use_replacement=False):
 
         # Bootstrap: run 15 sim steps to seed the initial state with averaged detector readings
         _, _ra, _rd, _up, _dn = apply_action_and_get_reward(
-            action_ratio=0.0,  # neutral start
+            action_ratio=1.0,
         )
 
-        last_green_duration = int(0.0 * 15)
+        last_green_duration = int(1.0 * 15)
 
         raw_state = get_traffic_state(last_green_duration, _ra, _rd, _up, _dn)
         state = normalize_state(raw_state, state_tracker)
