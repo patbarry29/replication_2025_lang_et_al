@@ -16,7 +16,7 @@ from action_replacement import calculate_lower_bound, calculate_penalty
 STATE_DIM = 10
 CONTROL_STEPS_PER_EPISODE = 240
 SIM_STEPS_PER_CONTROL = 15
-NUM_EPISODES = 100
+NUM_EPISODES = 500
 MAX_SPEED = 27.78
 
 MAX_TTS = 4119.0
@@ -106,6 +106,10 @@ def train(use_replacement=False):
     line, ax, fig = init_plot(use_replacement)
     all_scores = []
 
+    cumulative_steps = 0
+    history_steps = []
+    history_lengths = []
+
     model_dir = "models_replacement" if use_replacement else "models"
     os.makedirs(model_dir, exist_ok=True)
 
@@ -173,7 +177,7 @@ def train(use_replacement=False):
             spillback = final_queue > 0.9 * 42.0
 
             # ---- Termination logic ----
-            if spillback and use_replacement:
+            if spillback:
                 # reward -= 10.0
                 done = True
                 print(
@@ -206,6 +210,9 @@ def train(use_replacement=False):
             prev_demand = curr_demand
 
             if done:
+                cumulative_steps += (step + 1)
+                history_steps.append(cumulative_steps)
+                history_lengths.append(step + 1)
                 break
 
         with torch.no_grad():
@@ -232,6 +239,10 @@ def train(use_replacement=False):
             tracker_path = os.path.join(model_dir, f"state_tracker_ep{episode}.pkl")
             with open(tracker_path, "wb") as f:
                 pickle.dump(state_tracker, f)
+
+    file_name = "training_history_replacement.pkl" if use_replacement else "training_history_baseline.pkl"
+    with open(os.path.join("models", file_name), "wb") as f:
+        pickle.dump({"steps": history_steps, "lengths": history_lengths}, f)
 
     plt.ioff()
     plt.show()
