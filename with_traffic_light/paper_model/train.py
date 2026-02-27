@@ -52,73 +52,47 @@ def normalize_state(raw_state, tracker):
     return (raw_state - tracker.mean) / std
 
 def apply_action_and_get_reward(action_ratio):
-    """Run one 15s control step and return reward + averaged detector stats."""
-
     green = int(action_ratio * 15)
     red = 15 - green
-
     tts = 0
-    n_steps = 0
 
-    unique_arr_ids = set()
-    unique_dep_ids = set()
-
-    # Accumulators
-    stats = {
-        "up":   {"occ": 0.0, "speed": 0.0, "veh": 0.0},
-        "down": {"occ": 0.0, "speed": 0.0, "veh": 0.0},
-    }
-
-    def aggregate(detectors):
-        occ = np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in detectors])
-
-        raw_speeds = [traci.inductionloop.getLastStepMeanSpeed(d) for d in detectors]
-        speeds = [s if s != -1.0 else MAX_SPEED for s in raw_speeds]
-        speed = np.mean(speeds)
-
-        veh = np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in detectors])
-        return occ, speed, veh
-
-    def poll():
-        nonlocal n_steps
-
-        # ramp vehicles (unique IDs)
-        for d in RAMP_ARR_DETS:
-            unique_arr_ids.update(traci.inductionloop.getLastStepVehicleIDs(d))
-        for d in RAMP_DEP_DETS:
-            unique_dep_ids.update(traci.inductionloop.getLastStepVehicleIDs(d))
-
-        # upstream / downstream
-        for name, dets in [("up", UPSTREAM_DETS), ("down", DOWNSTREAM_DETS)]:
-            occ, speed, veh = aggregate(dets)
-            stats[name]["occ"]   += occ
-            stats[name]["speed"] += speed
-            stats[name]["veh"]   += veh
-
-        n_steps += 1
-
-    # --- Run phases ---
-    for duration, state in [(green, "GGGGGG"), (red, "GGGGrr")]:
+    # 1. Execute phases and calculate TTS manually
+    for duration, state in [(green, "gg"), (red, "rr")]:
         if duration <= 0:
             continue
-
         traci.trafficlight.setRedYellowGreenState(TLS_ID, state)
         for _ in range(duration):
             traci.simulationStep()
             tts += traci.vehicle.getIDCount()
-            poll()
 
-    # --- Compute outputs ---
-    n = max(n_steps, 1)
+    # 2. Fetch Aggregated Data
+    stats = {"up": {}, "down": {}}
+
+    def get_aggregate(detectors):
+        occ = np.mean([traci.inductionloop.getLastIntervalOccupancy(d) for d in detectors])
+
+        raw_speeds = [traci.inductionloop.getLastIntervalMeanSpeed(d) for d in detectors]
+        # Handle cases where no vehicles passed (-1.0)
+        speeds = [s if s >= 0 else MAX_SPEED for s in raw_speeds]
+        speed = np.mean(speeds)
+
+        # Total unique vehicles that passed during the 15s interval
+        veh_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in detectors])
+        veh_per_sec = veh_total / 15.0
+
+        return occ, speed, veh_per_sec
+
+    stats["up"]["occ"], stats["up"]["speed"], stats["up"]["veh"] = get_aggregate(UPSTREAM_DETS)
+    stats["down"]["occ"], stats["down"]["speed"], stats["down"]["veh"] = get_aggregate(DOWNSTREAM_DETS)
+
+    # Ramps
+    arr_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in RAMP_ARR_DETS])
+    dep_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in RAMP_DEP_DETS])
+
+    agg_ramp_arr = arr_total / 15.0
+    agg_ramp_dep = dep_total / 15.0
 
     reward = (MAX_TTS - tts) / AVG_TTS
-
-    agg_ramp_arr = len(unique_arr_ids) / n
-    agg_ramp_dep = len(unique_dep_ids) / n
-
-    for location in stats:
-        for key in stats[location]:
-            stats[location][key] /= n
 
     return reward, agg_ramp_arr, agg_ramp_dep, stats["up"], stats["down"]
 
@@ -129,8 +103,11 @@ def train(use_replacement=False):
     sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true"]
     traci.start(sumo_cmd)
 
-    line, ax, fig = init_plot()
+    line, ax, fig = init_plot(use_replacement)
     all_scores = []
+
+    model_dir = "models_replacement" if use_replacement else "models"
+    os.makedirs(model_dir, exist_ok=True)
 
     for episode in range(1, NUM_EPISODES+1):
         states, actions, log_probs, values, rewards, dones = [], [], [], [], [], []
@@ -196,12 +173,13 @@ def train(use_replacement=False):
             spillback = final_queue > 0.9 * 42.0
 
             # ---- Termination logic ----
-            if spillback:
-                reward -= 10.0
+            if spillback and use_replacement:
+                # reward -= 10.0
                 done = True
                 print(
                     f"[FAILURE] Step {step} | "
                     f"Queue {final_queue:.0f} | "
+                    f"Action {action:.2f} | "
                     f"Reward {reward:.3f}"
                 )
             else:
@@ -210,6 +188,7 @@ def train(use_replacement=False):
                     f"Step {step} | "
                     f"Q {curr_queue:.0f} → {final_queue:.0f} | "
                     f"Demand {curr_demand:.2f} | "
+                    f"Action {action:.2f} | "
                     f"Reward {reward:.3f}"
                 )
 
@@ -247,11 +226,11 @@ def train(use_replacement=False):
         print(f"\n\nEpisode {episode} Complete. Total Reward: {total_episode_reward}\n")
 
         if episode % 10 == 0:
-            save_path = os.path.join("models", f"model_ep{episode}.pth")
-            os.makedirs("models", exist_ok=True)
+            save_path = os.path.join(model_dir, f"model_ep{episode}.pth")
             torch.save(agent.state_dict(), save_path)
 
-            with open(os.path.join("models", f"state_tracker_ep{episode}.pkl"), "wb") as f:
+            tracker_path = os.path.join(model_dir, f"state_tracker_ep{episode}.pkl")
+            with open(tracker_path, "wb") as f:
                 pickle.dump(state_tracker, f)
 
     plt.ioff()

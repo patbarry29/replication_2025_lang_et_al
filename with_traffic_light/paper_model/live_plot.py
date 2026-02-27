@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def init_plot():
+def init_plot(use_replacement=False):
     plt.ion()
     fig, ax = plt.subplots()
     line, = ax.plot([], [], color='tab:blue', marker='o', linestyle='-')
-    ax.set_title("Live Training Performance")
+    ax.set_title(f"Live Training Performance (Replacement Enabled={use_replacement})")
     ax.set_xlabel("Episode")
     ax.set_ylabel("Total Score")
 

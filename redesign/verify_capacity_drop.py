@@ -62,9 +62,9 @@ while traci.simulation.getTime() < SIM_END:
         step_count = 0
         for det in dets:
             # FIX: Only count vehicles that have completely passed to avoid double-counting
-            step_count += traci.inductionloop.getLastStepVehicleNumber(det) 
+            step_count += traci.inductionloop.getLastStepVehicleNumber(det)
             # Note: If values are still high, use: len(traci.inductionloop.getPassedVehiclesID(det))
-        
+
         cumulative[loc] += step_count
         records[loc].append(cumulative[loc])
 
@@ -109,21 +109,21 @@ for loc in records:
 # =========================
 
 plt.figure(figsize=(10, 7))
-skip_steps = 400 
+skip_steps = 400
 marker_interval = 15  # Matches the paper's control step length
 
 styles = {
-    "+920 m (upstream)":     {'color': '#d62728', 'marker': '^', 'markersize': 5, 'linewidth': 1}, 
-    "+1225 m (downstream1)": {'color': '#ff7f0e', 'marker': '.', 'markersize': 5, 'linewidth': 1}, 
-    "+1475 m (downstream2)": {'color': '#1f77b4', 'marker': 'x', 'markersize': 5, 'linewidth': 1}  
+    "+920 m (upstream)":     {'color': '#d62728', 'marker': '^', 'markersize': 5, 'linewidth': 1},
+    "+1225 m (downstream1)": {'color': '#ff7f0e', 'marker': '.', 'markersize': 5, 'linewidth': 1},
+    "+1475 m (downstream2)": {'color': '#1f77b4', 'marker': 'x', 'markersize': 5, 'linewidth': 1}
 }
 
 for loc, (t, data) in modified_curves.items():
     mask = t > skip_steps
     # Slice using [::marker_interval] to show markers every 15 seconds
-    plt.plot(t[mask][::marker_interval], 
-             data[mask][::marker_interval], 
-             label=loc.split(' ')[0], 
+    plt.plot(t[mask][::marker_interval],
+             data[mask][::marker_interval],
+             label=loc.split(' ')[0],
              **styles[loc])
 
 # Vertical dashed lines for capacity drop phases (approx 600s and 950s)

@@ -5,6 +5,7 @@ import time
 import numpy as np
 import torch
 import traci
+import matplotlib.pyplot as plt
 
 from model import SharedActorCritic
 from train import get_traffic_state, apply_action_and_get_reward, UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS
@@ -17,7 +18,7 @@ SIM_STEPS_PER_CONTROL = 15
 
 SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
 
-TLS_ID = "1494194482"
+TLS_ID = "junction_ramp"
 
 def evaluate_model(model_path, state_tracker):
     agent = SharedActorCritic(STATE_DIM)
@@ -30,36 +31,35 @@ def evaluate_model(model_path, state_tracker):
     time.sleep(5)
 
     # Bootstrap: run 15 sim steps to get initial aggregated detector readings
-    last_green_duration = 0
-    init_ramp_arr, init_ramp_dep = 0, 0
-    init_up = {'occ': 0.0, 'speed': 0.0, 'veh': 0.0}
-    init_down = {'occ': 0.0, 'speed': 0.0, 'veh': 0.0}
-    for _ in range(SIM_STEPS_PER_CONTROL):
-        traci.simulationStep()
-        init_ramp_arr += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_ARR_DETS])
-        init_ramp_dep += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in RAMP_DEP_DETS])
-        init_up['occ'] += np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in UPSTREAM_DETS])
-        init_up['speed'] += np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in UPSTREAM_DETS])
-        init_up['veh'] += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in UPSTREAM_DETS])
-        init_down['occ'] += np.mean([traci.inductionloop.getLastStepOccupancy(d) for d in DOWNSTREAM_DETS])
-        init_down['speed'] += np.mean([traci.inductionloop.getLastStepMeanSpeed(d) for d in DOWNSTREAM_DETS])
-        init_down['veh'] += np.sum([traci.inductionloop.getLastStepVehicleNumber(d) for d in DOWNSTREAM_DETS])
-    init_up['occ'] /= SIM_STEPS_PER_CONTROL
-    init_up['speed'] /= SIM_STEPS_PER_CONTROL
-    init_up['veh'] /= SIM_STEPS_PER_CONTROL
-    init_down['occ'] /= SIM_STEPS_PER_CONTROL
-    init_down['speed'] /= SIM_STEPS_PER_CONTROL
-    init_down['veh'] /= SIM_STEPS_PER_CONTROL
-    init_ramp_arr /= SIM_STEPS_PER_CONTROL
-    init_ramp_dep /= SIM_STEPS_PER_CONTROL
+    _, avg_ra, avg_rd, agg_up, agg_down = apply_action_and_get_reward(
+        action_ratio=0.0,   # neutral metering
+    )
 
-    raw_state = get_traffic_state(last_green_duration, init_ramp_arr, init_ramp_dep, init_up, init_down)
+    last_green_duration = int(0.0 * 15)
+
+    raw_state = get_traffic_state(
+        last_green_duration,
+        avg_ra,
+        avg_rd,
+        agg_up,
+        agg_down
+    )
+
     state = normalize_state_eval(raw_state, state_tracker)
-
     prev_demand = raw_state[7]
 
     total_tts = 0
     max_queue = 0
+
+    # History tracking
+    history = {
+        "step": [],
+        "green_times": [],
+        "lower_bounds": [],
+        "queues": [],
+        "downstream_speeds": [],
+        "replacements": []
+    }
 
     for step in range(CONTROL_STEPS_PER_EPISODE):
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
@@ -79,7 +79,10 @@ def evaluate_model(model_path, state_tracker):
             env_action = torch.tensor(lower_bound)
             replaced = True
 
-        print(f"Eval Step {step} | Raw Action: {action.item():.3f} | Replaced: {replaced} (LB: {lower_bound:.3f}) | Exec Green: {int(env_action.item() * 15)}s | Queue: {curr_queue} | Demand/s: {curr_demand:.2f}")
+        green_duration = int(env_action.item() * 15)
+        lb_duration = int(lower_bound * 15)
+
+        print(f"Eval Step {step} | Raw Action: {action.item():.3f} | Replaced: {replaced} (LB: {lower_bound:.3f}) | Exec Green: {green_duration}s | Queue: {curr_queue} | Demand/s: {curr_demand:.2f}")
 
         # Environment step with aggregated polling
         reward, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down = apply_action_and_get_reward(env_action)
@@ -88,7 +91,14 @@ def evaluate_model(model_path, state_tracker):
         current_queue = traci.edge.getLastStepVehicleNumber("edge_ramp_2")
         max_queue = max(max_queue, current_queue)
 
-        green_duration = int(env_action.item() * 15)
+        # Record metrics for plotting
+        history["step"].append(step)
+        history["green_times"].append(green_duration)
+        history["lower_bounds"].append(lb_duration)
+        history["queues"].append(current_queue)
+        history["downstream_speeds"].append(agg_down["speed"])
+        history["replacements"].append(replaced)
+
         raw_next_state = get_traffic_state(green_duration, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down)
         state = normalize_state_eval(raw_next_state, state_tracker)
 
@@ -98,6 +108,44 @@ def evaluate_model(model_path, state_tracker):
     traci.close()
     print(f"Evaluation Complete. Max Queue: {max_queue}")
 
+    plot_evaluation(history)
+
+def plot_evaluation(hist):
+    fig, axs = plt.subplots(3, 1, figsize=(12, 12), sharex=True)
+
+    # Plot 1: Green Light Duration & Action Replacement bounds
+    axs[0].plot(hist["step"], hist["green_times"], label="Executed Green Duration", drawstyle="steps-mid")
+    axs[0].plot(hist["step"], hist["lower_bounds"], label="Lower Bound Constraint", linestyle="--", alpha=0.7, drawstyle="steps-mid")
+
+    # Highlight points where action was replaced
+    replacements_idx = [i for i, r in enumerate(hist["replacements"]) if r]
+    replacements_y = [hist["green_times"][i] for i in replacements_idx]
+    axs[0].scatter(replacements_idx, replacements_y, color="red", zorder=5, label="Action Replaced")
+
+    axs[0].set_ylabel("Green Time (s)")
+    axs[0].set_title("Agent Actions vs Safety Bounds")
+    axs[0].legend()
+    axs[0].grid(True, alpha=0.3)
+
+    # Plot 2: Ramp Queue length
+    axs[1].plot(hist["step"], hist["queues"], color="red", label="Ramp Queue")
+    axs[1].axhline(y=42, color="black", linestyle="--", label="Max Capacity (42)")
+    axs[1].set_ylabel("Number of Vehicles")
+    axs[1].set_title("Ramp Storage Status")
+    axs[1].legend()
+    axs[1].grid(True, alpha=0.3)
+
+    # Plot 3: Mainline Downstream Speed
+    axs[2].plot(hist["step"], hist["downstream_speeds"], color="green", label="Downstream Speed")
+    axs[2].set_xlabel("Control Step")
+    axs[2].set_ylabel("Speed (m/s)")
+    axs[2].set_title("Mainline Traffic State (Capacity Drop Monitor)")
+    axs[2].legend()
+    axs[2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.show()
+
 def normalize_state_eval(raw_state, tracker):
     raw_state = np.array(raw_state)
     std = tracker.std()
@@ -105,8 +153,10 @@ def normalize_state_eval(raw_state, tracker):
     return (raw_state - tracker.mean) / std
 
 if __name__ == "__main__":
-    MODEL_PATH = os.path.join("models","model_ep90.pth")
-    TRACKER_PATH = os.path.join("models","state_tracker_ep90.pkl")
+    MODEL_PATH = os.path.join("models_replacement","model_ep100.pth")
+    TRACKER_PATH = os.path.join("models_replacement","state_tracker_ep100.pkl")
+    # MODEL_PATH = os.path.join("models","model_ep100.pth")
+    # TRACKER_PATH = os.path.join("models","state_tracker_ep100.pkl")
 
     with open(TRACKER_PATH, "rb") as f:
         state_tracker = pickle.load(f)
