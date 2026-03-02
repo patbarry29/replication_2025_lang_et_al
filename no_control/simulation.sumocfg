@@ -1,9 +1,9 @@
 <configuration>
     <input>
         <net-file value="network.net.xml"/>
-        
+
         <route-files value="traffic.rou.xml"/>
-		<additional-files value="detectors.xml"/>
+		<additional-files value="detectors.add.xml"/>
     </input>
 
     <time>
@@ -13,9 +13,9 @@
 
 	<processing>
 		<step-length value="1"/>
-		<time-to-teleport value="-1"/> 
-		<collision.action value="warn"/> 
-		<collision.mingap-factor value="0"/> 
+		<time-to-teleport value="-1"/>
+		<collision.action value="warn"/>
+		<collision.mingap-factor value="0"/>
 	</processing>
 
     <output>

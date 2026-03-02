@@ -103,6 +103,7 @@ def generate_heatmap():
     ax.xaxis.set_ticks_position('bottom')
 
     plt.tight_layout()
+    plt.savefig(r"C:\Users\pbarry\Documents\2025_yang_dqn\with_traffic_light\paper_model\replicate_graphs\plots\fig_7.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 if __name__ == "__main__":

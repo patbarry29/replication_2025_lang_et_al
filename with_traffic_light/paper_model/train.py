@@ -16,7 +16,7 @@ from action_replacement import calculate_lower_bound, calculate_penalty
 STATE_DIM = 10
 CONTROL_STEPS_PER_EPISODE = 240
 SIM_STEPS_PER_CONTROL = 15
-NUM_EPISODES = 500
+NUM_EPISODES = 100
 MAX_SPEED = 27.78
 
 MAX_TTS = 4119.0
@@ -94,7 +94,7 @@ def apply_action_and_get_reward(action_ratio):
 
     reward = (MAX_TTS - tts) / AVG_TTS
 
-    return reward, agg_ramp_arr, agg_ramp_dep, stats["up"], stats["down"]
+    return tts, reward, agg_ramp_arr, agg_ramp_dep, stats["up"], stats["down"]
 
 def train(use_replacement=False):
     agent = SharedActorCritic(STATE_DIM)
@@ -109,17 +109,21 @@ def train(use_replacement=False):
     cumulative_steps = 0
     history_steps = []
     history_lengths = []
+    history_tts = []
+    history_replacement_pct = []
 
     model_dir = "models_replacement" if use_replacement else "models"
     os.makedirs(model_dir, exist_ok=True)
 
     for episode in range(1, NUM_EPISODES+1):
         states, actions, log_probs, values, rewards, dones = [], [], [], [], [], []
+        episode_tts_total = 0
+        episode_replacements = 0
 
         traci.load(["-c", SUMO_PATH])
 
         # Bootstrap: run 15 sim steps to seed the initial state with averaged detector readings
-        _, _ra, _rd, _up, _dn = apply_action_and_get_reward(
+        _, _, _ra, _rd, _up, _dn = apply_action_and_get_reward(
             action_ratio=1.0,
         )
 
@@ -158,10 +162,13 @@ def train(use_replacement=False):
                         f"Penalty: {penalty:.3f}"
                     )
                     action = lower_bound
+                    episode_replacements += 1
 
             # ---- Environment step ----
-            base_reward, avg_ra, avg_rd, agg_up, agg_down = \
+            step_tts, base_reward, avg_ra, avg_rd, agg_up, agg_down = \
                 apply_action_and_get_reward(action)
+
+            episode_tts_total += step_tts
 
             reward = base_reward - penalty
 
@@ -213,6 +220,10 @@ def train(use_replacement=False):
                 cumulative_steps += (step + 1)
                 history_steps.append(cumulative_steps)
                 history_lengths.append(step + 1)
+                history_tts.append(episode_tts_total)
+
+                replacement_percentage = (episode_replacements / (step + 1)) * 100
+                history_replacement_pct.append(replacement_percentage)
                 break
 
         with torch.no_grad():
@@ -240,9 +251,14 @@ def train(use_replacement=False):
             with open(tracker_path, "wb") as f:
                 pickle.dump(state_tracker, f)
 
-    file_name = "training_history_replacement.pkl" if use_replacement else "training_history_baseline.pkl"
-    with open(os.path.join("models", file_name), "wb") as f:
-        pickle.dump({"steps": history_steps, "lengths": history_lengths}, f)
+            # file_name = "training_history_replacement.pkl" if use_replacement else "training_history_baseline.pkl"
+            # with open(os.path.join("models", file_name), "wb") as f:
+            #     pickle.dump({
+            #         "steps": history_steps,
+            #         "lengths": history_lengths,
+            #         "tts": history_tts,
+            #         "replacement_pct": history_replacement_pct
+            #     }, f)
 
     plt.ioff()
     plt.show()

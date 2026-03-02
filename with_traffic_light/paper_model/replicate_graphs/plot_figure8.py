@@ -57,6 +57,7 @@ def plot_episode_lengths():
     )
 
     plt.tight_layout()
+    plt.savefig(r"C:\Users\pbarry\Documents\2025_yang_dqn\with_traffic_light\paper_model\replicate_graphs\plots\fig_8.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 if __name__ == "__main__":
