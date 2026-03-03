@@ -1,10 +1,6 @@
 import math
 
-# Constants for the Store-and-Forward Model
-W_MAX = 42.0
-ALPHA = 0.9
-R_MIN_RATIO = 0.1
-CAPACITY_PER_STEP = 8.04
+from config import W_MAX, ALPHA, R_MIN_RATIO, CAPACITY_PER_STEP
 
 def calculate_lower_bound(demand_prev, current_queue):
     # Calculate the minimum required discharge in vehicles per step

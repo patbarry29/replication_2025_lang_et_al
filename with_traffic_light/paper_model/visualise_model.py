@@ -8,17 +8,9 @@ import traci
 import matplotlib.pyplot as plt
 
 from model import SharedActorCritic
-from train import get_traffic_state, apply_action_and_get_reward, UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS
+from train import get_traffic_state, apply_action_and_get_reward
 from action_replacement import calculate_lower_bound
-
-# --- Hyperparameters ---
-STATE_DIM = 10
-CONTROL_STEPS_PER_EPISODE = 240
-SIM_STEPS_PER_CONTROL = 15
-
-SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
-
-TLS_ID = "junction_ramp"
+from config import *
 
 def evaluate_model(model_path, state_tracker):
     agent = SharedActorCritic(STATE_DIM)
@@ -31,7 +23,7 @@ def evaluate_model(model_path, state_tracker):
     time.sleep(5)
 
     # Bootstrap: run 15 sim steps to get initial aggregated detector readings
-    _, avg_ra, avg_rd, agg_up, agg_down = apply_action_and_get_reward(
+    _, _, avg_ra, avg_rd, agg_up, agg_down = apply_action_and_get_reward(
         action_ratio=0.0,   # neutral metering
     )
 
@@ -85,7 +77,7 @@ def evaluate_model(model_path, state_tracker):
         print(f"Eval Step {step} | Raw Action: {action.item():.3f} | Replaced: {replaced} (LB: {lower_bound:.3f}) | Exec Green: {green_duration}s | Queue: {curr_queue} | Demand/s: {curr_demand:.2f}")
 
         # Environment step with aggregated polling
-        reward, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down = apply_action_and_get_reward(env_action)
+        _, reward, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down = apply_action_and_get_reward(env_action)
 
         # Track TTS and max queue from the post-step snapshot
         current_queue = traci.edge.getLastStepVehicleNumber("edge_ramp_2")

@@ -7,14 +7,7 @@ import traci
 from model import SharedActorCritic
 from train import get_traffic_state, apply_action_and_get_reward
 from action_replacement import calculate_lower_bound
-
-# --- Hyperparameters ---
-STATE_DIM = 10
-CONTROL_STEPS_PER_EPISODE = 280
-SIM_STEPS_PER_CONTROL = 15
-
-SUMO_PATH = os.path.join(r"C:\Users", "pbarry", "Documents", "2025_yang_dqn", "with_traffic_light", "sumo_network", "data", "simulation.sumocfg")
-TLS_ID = "junction_ramp"
+from config import *
 
 def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no_control=False):
     agent = None
@@ -33,7 +26,7 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
     # Bootstrap step
     _, _, avg_ra, avg_rd, agg_up, agg_down = apply_action_and_get_reward(action_ratio=1.0)
 
-    last_green_duration = int(1.0 * 15) if no_control else int(0.0 * 15)
+    last_green_duration = int(1.0 * SIM_STEPS_PER_CONTROL) if no_control else int(0.0 * SIM_STEPS_PER_CONTROL)
     raw_state = get_traffic_state(last_green_duration, avg_ra, avg_rd, agg_up, agg_down)
 
     if not no_control:
@@ -59,10 +52,10 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
                 action = dist.mean
                 env_action = torch.clamp(action, 0.0, 1.0).item()
 
-            if use_replacement:
-                lower_bound = calculate_lower_bound(prev_demand, curr_queue)
-                if env_action < lower_bound:
-                    env_action = lower_bound
+            # if use_replacement:
+            #     lower_bound = calculate_lower_bound(prev_demand, curr_queue)
+            #     if env_action < lower_bound:
+            #         env_action = lower_bound
 
         # Step environment
         step_tts, _, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down = apply_action_and_get_reward(env_action)
@@ -75,7 +68,7 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
         if current_queue > 42 * 0.9:
             spillback_occurred = True
 
-        green_duration = int(env_action * 15)
+        green_duration = int(env_action * SIM_STEPS_PER_CONTROL)
         raw_next_state = get_traffic_state(green_duration, agg_ramp_arr, agg_ramp_dep, agg_up, agg_down)
 
         if not no_control:

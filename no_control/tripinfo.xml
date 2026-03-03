@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2026-03-02T15:23:07.634433+01:00 by Eclipse SUMO GUI 1.26.0
+<!-- generated on 2026-03-03T11:07:46.035137+01:00 by Eclipse SUMO GUI 1.26.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -29,7 +29,8 @@
 -->
 
 <tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
-    <tripinfo id="ramp_warm_1.0" depart="0.00" departLane="edge_virtual_ramp_0" departPos="0.00" departSpeed="19.43" departDelay="0.00" arrival="44.00" arrivalLane="edge_downstream_0" arrivalPos="486.00" arrivalSpeed="26.83" duration="44.00" routeLength="923.28" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="4.74" rerouteNo="0" devices="tripinfo_ramp_warm_1.0" vType="car_ramp" speedFactor="0.98" vaporized=""/>
+</tripinfos>
+id="ramp_warm_1.0" depart="0.00" departLane="edge_virtual_ramp_0" departPos="0.00" departSpeed="19.43" departDelay="0.00" arrival="44.00" arrivalLane="edge_downstream_0" arrivalPos="486.00" arrivalSpeed="26.83" duration="44.00" routeLength="923.28" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="4.74" rerouteNo="0" devices="tripinfo_ramp_warm_1.0" vType="car_ramp" speedFactor="0.98" vaporized=""/>
     <tripinfo id="ramp_warm_1.1" depart="6.00" departLane="edge_virtual_ramp_0" departPos="0.00" departSpeed="15.69" departDelay="0.19" arrival="49.00" arrivalLane="edge_downstream_0" arrivalPos="486.00" arrivalSpeed="27.63" duration="43.00" routeLength="923.28" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="3.95" rerouteNo="0" devices="tripinfo_ramp_warm_1.1" vType="car_ramp" speedFactor="1.00" vaporized=""/>
     <tripinfo id="main_warmup.0" depart="0.00" departLane="edge_virtual_main_0" departPos="0.00" departSpeed="25.20" departDelay="0.00" arrival="55.00" arrivalLane="edge_downstream_1" arrivalPos="486.00" arrivalSpeed="28.25" duration="55.00" routeLength="1520.36" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="0.66" rerouteNo="0" devices="tripinfo_main_warmup.0" vType="car_main" speedFactor="1.02" vaporized=""/>
     <tripinfo id="ramp_warm_1.2" depart="12.00" departLane="edge_virtual_ramp_0" departPos="0.00" departSpeed="14.89" departDelay="0.39" arrival="55.00" arrivalLane="edge_downstream_0" arrivalPos="486.00" arrivalSpeed="26.72" duration="43.00" routeLength="923.28" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="3.58" rerouteNo="0" devices="tripinfo_ramp_warm_1.2" vType="car_ramp" speedFactor="0.98" vaporized=""/>

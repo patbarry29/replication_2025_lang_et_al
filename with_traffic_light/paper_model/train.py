@@ -11,28 +11,17 @@ from model import SharedActorCritic
 from stats import RunningStat
 from live_plot import init_plot, update_live_plot
 from action_replacement import calculate_lower_bound, calculate_penalty
+from config import (
+    STATE_MEANS, STATE_STDS, TLS_ID, MAX_SPEED, UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS,
+    RAMP_DEP_DETS, MAX_TTS, AVG_TTS, STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL
+)
 
 # --- Hyperparameters ---
-STATE_DIM = 10
-CONTROL_STEPS_PER_EPISODE = 240
-SIM_STEPS_PER_CONTROL = 15
 NUM_EPISODES = 100
-MAX_SPEED = 27.78
-
-MAX_TTS = 4119.0
-AVG_TTS = 3405.64
-TLS_ID = "junction_ramp"
-SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
-
-# Define detector ID lists matching your XML configuration
-UPSTREAM_DETS = [f"det_upstream_{i}" for i in range(4)]
-DOWNSTREAM_DETS = [f"det_loc2_{i}" for i in range(4)] + [f"det_loc3_{i}" for i in range(4)]
-RAMP_ARR_DETS = [f"det_ramp_arr_{i}" for i in range(2)]
-RAMP_DEP_DETS = [f"det_ramp_dep_{i}" for i in range(2)]
 
 def get_traffic_state(last_green_duration, ramp_arr, ramp_dep, upstream, downstream):
     """Build the state vector using pre-aggregated (averaged) detector readings
-    from the previous 15-second control interval.
+    from the previous SIM_STEPS_PER_CONTROL-second control interval.
     """
     state = []
     state.extend([upstream['occ'], upstream['speed'], upstream['veh']])
@@ -45,15 +34,15 @@ def get_traffic_state(last_green_duration, ramp_arr, ramp_dep, upstream, downstr
     return state
 
 def normalize_state(raw_state, tracker):
-    raw_state = np.array(raw_state)
-    tracker.push(raw_state)
-    std = tracker.std()
-    std[std == 0] = 1e-8 # Prevent division by zero
-    return (raw_state - tracker.mean) / std
+    raw_state = np.asarray(raw_state)
+    # tracker.push(raw_state)
+    # std = tracker.std()
+    # std[std == 0] = 1e-8 # Prevent division by zero
+    return (raw_state - STATE_MEANS) / STATE_STDS
 
 def apply_action_and_get_reward(action_ratio):
-    green = int(action_ratio * 15)
-    red = 15 - green
+    green = int(action_ratio * SIM_STEPS_PER_CONTROL)
+    red = int(SIM_STEPS_PER_CONTROL - green)
     tts = 0
 
     # 1. Execute phases and calculate TTS manually
@@ -76,9 +65,9 @@ def apply_action_and_get_reward(action_ratio):
         speeds = [s if s >= 0 else MAX_SPEED for s in raw_speeds]
         speed = np.mean(speeds)
 
-        # Total unique vehicles that passed during the 15s interval
+        # Total unique vehicles that passed during the SIM_STEPS_PER_CONTROLs interval
         veh_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in detectors])
-        veh_per_sec = veh_total / 15.0
+        veh_per_sec = veh_total / SIM_STEPS_PER_CONTROL
 
         return occ, speed, veh_per_sec
 
@@ -89,8 +78,8 @@ def apply_action_and_get_reward(action_ratio):
     arr_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in RAMP_ARR_DETS])
     dep_total = np.sum([traci.inductionloop.getLastIntervalVehicleNumber(d) for d in RAMP_DEP_DETS])
 
-    agg_ramp_arr = arr_total / 15.0
-    agg_ramp_dep = dep_total / 15.0
+    agg_ramp_arr = arr_total / SIM_STEPS_PER_CONTROL
+    agg_ramp_dep = dep_total / SIM_STEPS_PER_CONTROL
 
     reward = (MAX_TTS - tts) / AVG_TTS
 
@@ -122,12 +111,12 @@ def train(use_replacement=False):
 
         traci.load(["-c", SUMO_PATH])
 
-        # Bootstrap: run 15 sim steps to seed the initial state with averaged detector readings
+        # Bootstrap: run SIM_STEPS_PER_CONTROL sim steps to seed the initial state with averaged detector readings
         _, _, _ra, _rd, _up, _dn = apply_action_and_get_reward(
             action_ratio=1.0,
         )
 
-        last_green_duration = int(1.0 * 15)
+        last_green_duration = int(1.0 * SIM_STEPS_PER_CONTROL)
 
         raw_state = get_traffic_state(last_green_duration, _ra, _rd, _up, _dn)
         state = normalize_state(raw_state, state_tracker)
@@ -173,7 +162,7 @@ def train(use_replacement=False):
             reward = base_reward - penalty
 
             # ---- Next state ----
-            green_duration = int(action * 15)
+            green_duration = int(action * SIM_STEPS_PER_CONTROL)
 
             raw_next_state = get_traffic_state(
                 green_duration, avg_ra, avg_rd, agg_up, agg_down

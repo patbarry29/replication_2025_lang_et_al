@@ -112,13 +112,11 @@
         <lane id="edge_virtual_ramp_1" index="1" speed="27.78" length="100.00" shape="62.36,235.10 4.53,138.72"/>
     </edge>
 
-```xml
     <tlLogic id="junction_ramp" type="static" programID="0" offset="0">
-        <phase duration="39" state="GG"/>
-        <phase duration="3" state="yy"/>
-        <phase duration="39" state="rr"/>
+        <phase duration="7" state="GG"/>
+        <phase duration="2" state="yy"/>
+        <phase duration="6" state="rr"/>
     </tlLogic>
-```
 
     <junction id="J0" type="zipper" x="-88.67" y="-15.22" incLanes="edge_ramp_out_0 edge_ramp_out_1" intLanes=":J0_0_0 :J0_0_1" shape="-90.57,-8.83 -85.21,-12.33 -87.11,-14.63 -87.94,-15.30 -88.79,-15.96 -89.73,-16.84 -90.84,-18.16 -93.42,-16.28 -92.11,-13.67 -91.92,-12.61 -91.75,-11.54 -91.37,-10.32">
         <request index="0" response="10" foes="10" cont="0"/>
