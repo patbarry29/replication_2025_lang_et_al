@@ -11,7 +11,7 @@ MAX_SPEED = 27.78
 MAX_TTS = 4119.0
 AVG_TTS = 3405.64
 TLS_ID = "junction_ramp"
-SUMO_PATH = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data","simulation.sumocfg")
+SUMO_PATH = os.path.join("..", "sumo_network", "data", "simulation.sumocfg")
 
 STATE_DIM = 10
 CONTROL_STEPS_PER_EPISODE = 240
