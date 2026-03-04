@@ -19,3 +19,4 @@ tb_logs/
 
 models/
 models_replacement/
+.vscode/settings.json
