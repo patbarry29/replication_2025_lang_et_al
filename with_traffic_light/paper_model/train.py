@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import torch
 import traci
 import numpy as np
+import random
 
 from ppo_loss import compute_gae, ppo_update
 from model import SharedActorCritic
@@ -17,7 +18,7 @@ from config import (
 )
 
 # --- Hyperparameters ---
-NUM_EPISODES = 100
+NUM_EPISODES = 250
 
 def get_traffic_state(last_green_duration, ramp_arr, ramp_dep, upstream, downstream):
     """Build the state vector using pre-aggregated (averaged) detector readings
@@ -85,11 +86,11 @@ def apply_action_and_get_reward(action_ratio):
 
     return tts, reward, agg_ramp_arr, agg_ramp_dep, stats["up"], stats["down"]
 
-def train(use_replacement=False):
+def train(use_replacement=False, seed=42):
     agent = SharedActorCritic(STATE_DIM)
     optimizer = torch.optim.Adam(agent.parameters(), lr=3e-4)
 
-    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true"]
+    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true", "--seed", str(args.seed)]
     traci.start(sumo_cmd)
 
     line, ax, fig = init_plot(use_replacement)
@@ -249,14 +250,33 @@ def train(use_replacement=False):
             #         "replacement_pct": history_replacement_pct
             #     }, f)
 
+    file_prefix = "replacement" if use_replacement else "baseline"
+    save_path = os.path.join(model_dir, f"training_history_{file_prefix}_seed{seed}.pkl")
+
+    with open(save_path, "wb") as f:
+        pickle.dump({
+            "scores": all_scores,
+            "steps": history_steps,
+            "lengths": history_lengths,
+            "tts": history_tts,
+            "replacement_pct": history_replacement_pct
+        }, f)
+
+    # Disable live plot blocking at the end so the wrapper script can proceed
     plt.ioff()
-    plt.show()
+    plt.close(fig)
     traci.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train RL Ramp Metering")
     parser.add_argument("--use_replacement", action="store_true", help="Enable action replacement module")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+
     args = parser.parse_args()
 
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
     state_tracker = RunningStat(shape=(10,))
-    train(use_replacement=args.use_replacement)
+    train(use_replacement=args.use_replacement, seed=args.seed)
