@@ -6,21 +6,23 @@ class SharedActorCritic(nn.Module):
     def __init__(self, state_dim):
         super(SharedActorCritic, self).__init__()
 
+        layer_size = 32
+
         # Shared Feature Extractor (3 FC layers)
         self.shared = nn.Sequential(
-            nn.Linear(state_dim, 64),
+            nn.Linear(state_dim, layer_size),
             nn.Tanh(),
-            nn.Linear(64, 64),
+            nn.Linear(layer_size, layer_size),
             nn.Tanh(),
-            nn.Linear(64, 64),
+            nn.Linear(layer_size, layer_size),
             nn.Tanh()
         )
 
         # Actor Network (Policy - 2 FC layers)
         self.actor_mean = nn.Sequential(
-            nn.Linear(64, 64),
+            nn.Linear(layer_size, layer_size),
             nn.Tanh(),
-            nn.Linear(64, 1),
+            nn.Linear(layer_size, 1),
             nn.Sigmoid() # Bounds the expectation to [0, 1]
         )
 
@@ -29,9 +31,9 @@ class SharedActorCritic(nn.Module):
 
         # Critic Network (Value - 2 FC layers)
         self.critic = nn.Sequential(
-            nn.Linear(64, 64),
+            nn.Linear(layer_size, layer_size),
             nn.Tanh(),
-            nn.Linear(64, 1)
+            nn.Linear(layer_size, 1)
         )
 
     def forward(self, state):

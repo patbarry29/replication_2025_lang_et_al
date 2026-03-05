@@ -9,23 +9,34 @@ class NoControlBaseline(BaseController):
     def execute_control(self, raw_state_list, is_training=False):
         return 1.0, None, None, None, None  # 100% green ratio
 
-class AlineaController(BaseController):
-    def __init__(self, target_occ=14.0, k_r=0.05, min_ratio=0.1, max_ratio=1.0, sim_steps_per_control=15.0):
+class PiAlineaController(BaseController):
+    def __init__(self, target_occ=14.0, k_r=90.0, k_p=10.0, min_ratio=0.1, max_ratio=1.0, sim_steps_per_control=15.0):
         self.target_occ = target_occ
         self.k_r = k_r
+        self.k_p = k_p
         self.min_ratio = min_ratio
         self.max_ratio = max_ratio
         self.sim_steps_per_control = sim_steps_per_control
+        self.prev_dn_occ = None
 
     def execute_control(self, raw_state_list, is_training=False):
         dn_occ = raw_state_list[3]        # Downstream occupancy
         last_green = raw_state_list[9]    # Last green duration in steps
 
+        # Initialize previous occupancy on the first step to prevent large jumps
+        if self.prev_dn_occ is None:
+            self.prev_dn_occ = dn_occ
+
         # Calculate previous ratio
         prev_ratio = last_green / self.sim_steps_per_control
 
-        # ALINEA feedback equation
-        action_ratio = prev_ratio + self.k_r * (self.target_occ - dn_occ)
+        # PI-ALINEA feedback equation
+        action_ratio = (prev_ratio +
+                        self.k_r * (self.target_occ - dn_occ) -
+                        self.k_p * (dn_occ - self.prev_dn_occ))
+
+        # Update previous occupancy for the next step
+        self.prev_dn_occ = dn_occ
 
         # Clamp between minimum and maximum allowed ratios
         action_ratio = max(self.min_ratio, min(self.max_ratio, action_ratio))

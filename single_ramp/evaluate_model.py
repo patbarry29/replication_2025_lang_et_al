@@ -7,7 +7,7 @@ from config import (
     UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS, TLS_ID
 )
 from env import RampMeterEnv
-from controllers import RLController, NoControlBaseline, AlineaController
+from controllers import RLController, NoControlBaseline, PiAlineaController
 from runner import run_episode
 from utils import normalize_static
 from model import SharedActorCritic
@@ -24,7 +24,7 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
     if no_control:
         controller = NoControlBaseline()
     elif alinea:
-        controller = AlineaController(target_occ=14.0)
+        controller = PiAlineaController()
     else:
         agent = SharedActorCritic(STATE_DIM)
         agent.load_state_dict(torch.load(model_path))
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     tts_base, mq_base, sb_base = run_evaluation(model_path=base_model, tracker_path=base_tracker)
     print(f"RL-Based   -> TTS: {tts_base:.2f} h | Max Queue: {mq_base} | Spillback: {sb_base}")
 
-    rep_model = os.path.join("models_replacement", "model_ep100.pth")
-    rep_tracker = os.path.join("models_replacement", "state_tracker_ep100.pkl")
-    tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
-    print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")
+    # rep_model = os.path.join("models_replacement", "model_ep100.pth")
+    # rep_tracker = os.path.join("models_replacement", "state_tracker_ep100.pkl")
+    # tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
+    # print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")

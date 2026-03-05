@@ -19,14 +19,11 @@ from ppo_loss import compute_gae, ppo_update
 from stats import RunningStat
 from live_plot import init_plot, update_live_plot
 
-
-NUM_EPISODES = 250
-
-def train(use_replacement, seed):
+def train(use_replacement, seed, num_episodes):
     model_dir = "models_replacement" if use_replacement else "models"
     os.makedirs(model_dir, exist_ok=True)
 
-    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true", "--seed", str(seed)]
+    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true", "--no-warnings", "--seed", str(seed)]
 
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd,
@@ -51,9 +48,10 @@ def train(use_replacement, seed):
 
     line, ax, fig = init_plot(use_replacement)
     all_scores, history_steps, history_lengths, history_tts = [], [], [], []
+    reward_history = {}
     cumulative_steps = 0
 
-    for episode in range(1, NUM_EPISODES+1):
+    for episode in range(1, num_episodes+1):
         env.start()
 
         # Execute the episode using the runner
@@ -96,6 +94,21 @@ def train(use_replacement, seed):
 
         # Save checkpoints
         if episode % 10 == 0:
+            reward_history[episode] = rewards.copy()
+
+            fig_reward, ax_reward = plt.subplots()
+
+            for ep, rew in reward_history.items():
+                ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
+
+            ax_reward.legend()
+            ax_reward.axhline(0, linestyle="--", color="r", alpha='0.5')
+            ax_reward.set_xlabel("Step")
+            ax_reward.set_ylabel("Reward")
+            ax_reward.set_title("Reward Comparison Across Episodes")
+            fig_reward.savefig(os.path.join("plots", f"rewards_episode{episode}.png"))
+            plt.close(fig_reward)
+
             torch.save(agent.state_dict(), os.path.join(model_dir, f"model_ep{episode}.pth"))
             with open(os.path.join(model_dir, f"state_tracker_ep{episode}.pkl"), "wb") as f:
                 pickle.dump(state_tracker, f)
@@ -115,10 +128,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_replacement", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--num_episodes", type=int, default=100)
     args = parser.parse_args()
 
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    train(args.use_replacement, args.seed)
+    train(args.use_replacement, args.seed, args.num_episodes)

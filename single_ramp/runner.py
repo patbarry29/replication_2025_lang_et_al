@@ -1,3 +1,4 @@
+import numpy as np
 from utils import format_state_vector
 from config import MAX_TTS, AVG_TTS
 
@@ -50,5 +51,9 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
 
         if done:
             break
+
+    mean_reward = np.mean(trajectory["rewards"])
+    num_steps = len(history["green_times"])
+    print(f"\n\n AVERAGE REWARD ({num_steps}): {mean_reward}\n")
 
     return trajectory, history, raw_state
