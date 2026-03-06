@@ -1,13 +1,18 @@
 import traci
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import SUMO_PATH
 
 # =========================
 # CONFIG
 # =========================
 
 SUMO_BINARY = "sumo"     # or sumo-gui
-SUMO_CONFIG = "simulation.sumocfg"
 
 STEP_LENGTH = 1
 SIM_END = 2250
@@ -18,7 +23,7 @@ q0 = 8160 / 3600.0   # veh/sec
 # detector groups
 detector_groups = {
     "+920 m (upstream)": [
-        "det_loc1_0","det_loc1_1","det_loc1_2","det_loc1_3","det_loc1_4"
+        "det_pre_merge_0","det_pre_merge_1","det_pre_merge_2","det_pre_merge_3"
     ],
     "+1225 m (downstream1)": [
         "det_loc2_0","det_loc2_1","det_loc2_2","det_loc2_3"
@@ -39,7 +44,7 @@ time_shift = {
 # START SUMO
 # =========================
 
-traci.start([SUMO_BINARY, "-c", SUMO_CONFIG])
+traci.start([SUMO_BINARY, "-c", SUMO_PATH])
 
 times = []
 cumulative = {k: 0 for k in detector_groups}
@@ -77,7 +82,7 @@ times = np.array(times)
 modified_curves = {}
 
 lane_count = {
-    "+920 m (upstream)": 5,
+    "+920 m (upstream)": 4,
     "+1225 m (downstream1)": 4,
     "+1475 m (downstream2)": 4
 }

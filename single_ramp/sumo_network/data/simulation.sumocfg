@@ -2,7 +2,7 @@
     <input>
         <net-file value="network.net.xml"/>
 
-        <route-files value="traffic.rou.xml"/>
+        <route-files value="routes.rou.xml"/>
 		<additional-files value="../additional/detectors.add.xml"/>
     </input>
 
