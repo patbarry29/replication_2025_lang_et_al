@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2026-03-06T12:00:22.656892+01:00 by Eclipse SUMO netedit 1.26.0
+<!-- generated on 2026-03-06T16:11:04.410946+01:00 by Eclipse SUMO netedit 1.26.0
 <neteditConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
 
     <input>
@@ -35,7 +35,7 @@
 
 <net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" avoidOverlap="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
 
-    <location netOffset="0.00,0.00" convBoundary="-3338.28,-408.57,3333.45,432.32" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
+    <location netOffset="0.00,0.00" convBoundary="-3703.29,-458.27,3333.45,432.32" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
 
     <edge id=":J25_0" function="internal">
         <lane id=":J25_0_0" index="0" speed="13.89" length="8.37" shape="-1362.46,-79.90 -1370.07,-82.19"/>
@@ -219,11 +219,11 @@
         <lane id="edge_mainline_7_2" index="2" speed="13.89" length="935.65" shape="-1919.74,-183.81 -2843.06,-334.95"/>
         <lane id="edge_mainline_7_3" index="3" speed="13.89" length="935.65" shape="-1919.34,-186.99 -2842.54,-338.11"/>
     </edge>
-    <edge id="edge_mainline_8" from="clusterJ49_J50" to="J51" priority="-1" spreadType="center" shape="-3063.06,-364.72 -3338.28,-408.57">
-        <lane id="edge_mainline_8_0" index="0" speed="13.89" length="278.69" shape="-3063.82,-359.98 -3339.04,-403.83"/>
-        <lane id="edge_mainline_8_1" index="1" speed="13.89" length="278.69" shape="-3063.31,-363.14 -3338.53,-406.99"/>
-        <lane id="edge_mainline_8_2" index="2" speed="13.89" length="278.69" shape="-3062.81,-366.30 -3338.03,-410.15"/>
-        <lane id="edge_mainline_8_3" index="3" speed="13.89" length="278.69" shape="-3062.30,-369.46 -3337.52,-413.31"/>
+    <edge id="edge_mainline_8" from="clusterJ49_J50" to="J51" priority="-1" spreadType="center" shape="-3063.06,-364.72 -3331.74,-407.53 -3703.29,-458.27">
+        <lane id="edge_mainline_8_0" index="0" speed="13.89" length="647.07" shape="-3063.82,-359.98 -3332.44,-402.78 -3703.94,-453.51"/>
+        <lane id="edge_mainline_8_1" index="1" speed="13.89" length="647.07" shape="-3063.31,-363.14 -3331.97,-405.95 -3703.51,-456.68"/>
+        <lane id="edge_mainline_8_2" index="2" speed="13.89" length="647.07" shape="-3062.81,-366.30 -3331.51,-409.11 -3703.07,-459.86"/>
+        <lane id="edge_mainline_8_3" index="3" speed="13.89" length="647.07" shape="-3062.30,-369.46 -3331.04,-412.28 -3702.64,-463.03"/>
     </edge>
     <edge id="edge_merge_1" from="clusterJ30_J34_J37" to="clusterJ20_J35" priority="-1" spreadType="center" shape="2625.12,405.27 2533.02,416.96 2394.46,431.15">
         <lane id="edge_merge_1_0" index="0" speed="13.89" length="231.43" shape="2625.93,411.62 2533.75,423.32 2395.80,437.45"/>
@@ -361,7 +361,7 @@
         <request index="0" response="10" foes="10" cont="0"/>
         <request index="1" response="01" foes="01" cont="0"/>
     </junction>
-    <junction id="J51" type="dead_end" x="-3338.28" y="-408.57" incLanes="edge_mainline_8_0 edge_mainline_8_1 edge_mainline_8_2 edge_mainline_8_3" intLanes="" shape="-3339.29,-402.25 -3337.27,-414.89"/>
+    <junction id="J51" type="dead_end" x="-3703.29" y="-458.27" incLanes="edge_mainline_8_0 edge_mainline_8_1 edge_mainline_8_2 edge_mainline_8_3" intLanes="" shape="-3704.16,-451.93 -3702.42,-464.61"/>
     <junction id="J6" type="dead_end" x="-2413.17" y="22.24" incLanes="edge_ramp_out_2_4_0 edge_ramp_out_2_4_1" intLanes="" shape="-2410.16,23.32 -2416.18,21.16"/>
     <junction id="J7" type="dead_end" x="-1219.91" y="-25.83" incLanes="" intLanes="" shape="-1218.67,-28.78 -1221.15,-22.88"/>
     <junction id="J8" type="dead_end" x="979.03" y="218.83" incLanes="edge_ramp_out_1_0" intLanes="" shape="979.72,221.95 979.03,218.83"/>
@@ -447,7 +447,7 @@
         <request index="3" response="00000" foes="00000" cont="0"/>
         <request index="4" response="00000" foes="00000" cont="0"/>
     </junction>
-    <junction id="clusterJ49_J50" type="priority" x="-3058.61" y="-363.21" incLanes="edge_merge_4_0 edge_merge_4_1 edge_merge_4_2 edge_merge_4_3 edge_merge_4_4" intLanes=":clusterJ49_J50_0_0 :clusterJ49_J50_0_1 :clusterJ49_J50_0_2 :clusterJ49_J50_0_3" shape="-3055.27,-353.77 -3053.05,-369.61 -3062.05,-371.04 -3064.07,-358.40 -3062.05,-357.83 -3060.70,-357.01 -3059.68,-356.05 -3058.65,-355.10 -3057.29,-354.30">
+    <junction id="clusterJ49_J50" type="priority" x="-3058.61" y="-363.21" incLanes="edge_merge_4_0 edge_merge_4_1 edge_merge_4_2 edge_merge_4_3 edge_merge_4_4" intLanes=":clusterJ49_J50_0_0 :clusterJ49_J50_0_1 :clusterJ49_J50_0_2 :clusterJ49_J50_0_3" shape="-3055.27,-353.77 -3053.05,-369.61 -3062.05,-371.04 -3064.07,-358.40 -3062.05,-357.83 -3060.70,-357.00 -3059.68,-356.05 -3058.65,-355.10 -3057.29,-354.30">
         <request index="0" response="0000" foes="0000" cont="0"/>
         <request index="1" response="0000" foes="0000" cont="0"/>
         <request index="2" response="0000" foes="0000" cont="0"/>

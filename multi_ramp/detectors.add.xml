@@ -1,0 +1,81 @@
+<additional>
+
+    <inductionLoop id="det_a1_up_0" lane="edge_mainline_1_0" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_up_1" lane="edge_mainline_1_1" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_up_2" lane="edge_mainline_1_2" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_up_3" lane="edge_mainline_1_3" pos="-30" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a1_dn1_0" lane="edge_mainline_2_0" pos="100.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn1_1" lane="edge_mainline_2_1" pos="100.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn1_2" lane="edge_mainline_2_2" pos="100.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn1_3" lane="edge_mainline_2_3" pos="100.57" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a1_dn2_0" lane="edge_mainline_2_0" pos="435.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn2_1" lane="edge_mainline_2_1" pos="435.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn2_2" lane="edge_mainline_2_2" pos="435.57" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_dn2_3" lane="edge_mainline_2_3" pos="435.57" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a1_ramp_arr_0" lane="edge_ramp_2_1_0" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_ramp_arr_1" lane="edge_ramp_2_1_1" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a1_ramp_dep_0" lane="edge_ramp_1_1_0" pos="-10" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a2_up_0" lane="edge_mainline_4_0" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_up_1" lane="edge_mainline_4_1" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_up_2" lane="edge_mainline_4_2" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_up_3" lane="edge_mainline_4_3" pos="-30" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a2_dn1_0" lane="edge_merge_2_0" pos="308.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn1_1" lane="edge_merge_2_1" pos="308.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn1_2" lane="edge_merge_2_2" pos="308.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn1_3" lane="edge_merge_2_3" pos="308.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn1_4" lane="edge_merge_2_4" pos="308.00" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a2_dn2_0" lane="edge_mainline_5_0" pos="41.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn2_1" lane="edge_mainline_5_1" pos="41.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn2_2" lane="edge_mainline_5_2" pos="41.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_dn2_3" lane="edge_mainline_5_3" pos="41.00" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a2_ramp_arr_0" lane="edge_ramp_2_2_0" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_ramp_arr_1" lane="edge_ramp_2_2_1" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a2_ramp_dep_0" lane="edge_ramp_1_2_0" pos="-10" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a3_up_0" lane="edge_mainline_5_0" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_up_1" lane="edge_mainline_5_1" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_up_2" lane="edge_mainline_5_2" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_up_3" lane="edge_mainline_5_3" pos="-30" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a3_dn1_0" lane="edge_mainline_6_0" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn1_1" lane="edge_mainline_6_1" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn1_2" lane="edge_mainline_6_2" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn1_3" lane="edge_mainline_6_3" pos="119.00" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a3_dn2_0" lane="edge_out_3_0" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn2_1" lane="edge_out_3_1" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn2_2" lane="edge_out_3_2" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn2_3" lane="edge_out_3_3" pos="119.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_dn2_4" lane="edge_out_3_4" pos="119.00" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a3_ramp_arr_0" lane="edge_ramp_2_3_0" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_ramp_arr_1" lane="edge_ramp_2_3_1" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a3_ramp_dep_0" lane="edge_ramp_1_3_0" pos="-10" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a4_up_0" lane="edge_mainline_7_0" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_up_1" lane="edge_mainline_7_1" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_up_2" lane="edge_mainline_7_2" pos="-30" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_up_3" lane="edge_mainline_7_3" pos="-30" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a4_dn1_0" lane="edge_mainline_8_0" pos="278.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn1_1" lane="edge_mainline_8_1" pos="278.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn1_2" lane="edge_mainline_8_2" pos="278.00" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn1_3" lane="edge_mainline_8_3" pos="278.00" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a4_ramp_arr_0" lane="edge_ramp_2_4_0" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_ramp_arr_1" lane="edge_ramp_2_4_1" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_ramp_dep_0" lane="edge_ramp_1_4_0" pos="-10" freq="15" file="NUL"/>
+
+    <inductionLoop id="det_a4_dn2_0" lane="edge_mainline_8_0" pos="580.56" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn2_1" lane="edge_mainline_8_1" pos="580.56" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn2_2" lane="edge_mainline_8_2" pos="580.56" freq="15" file="NUL"/>
+    <inductionLoop id="det_a4_dn2_3" lane="edge_mainline_8_3" pos="580.56" freq="15" file="NUL"/>
+
+</additional>
