@@ -62,8 +62,8 @@
     <flow id="ramp_warm_9" type="car_ramp" route="route_ramp" begin="480" end="540" vehsPerHour="940" departSpeed="random" departLane="best" departPos="free"/>
     <flow id="ramp_warm_10" type="car_ramp" route="route_ramp" begin="540" end="600" vehsPerHour="980" departSpeed="random" departLane="best" departPos="free"/>
 
-    <flow id="main_peak" type="car_main" route="route_main" begin="600" end="3300" vehsPerHour="7400" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_peak" type="car_ramp" route="route_ramp" begin="600" end="3300" vehsPerHour="760" departSpeed="random" departLane="best" departPos="free"/>
+    <flow id="main_peak" type="car_main" route="route_main" begin="600" end="3300" vehsPerHour="7900" departSpeed="random" departLane="best" departPos="free"/>
+    <flow id="ramp_peak" type="car_ramp" route="route_ramp" begin="600" end="3300" vehsPerHour="1300" departSpeed="random" departLane="best" departPos="free"/>
 
     <flow id="main_cool_1" type="car_main" route="route_main" begin="3300" end="3360" vehsPerHour="5933" departSpeed="random" departLane="best" departPos="free"/>
     <flow id="ramp_cool_1" type="car_ramp" route="route_ramp" begin="3300" end="3360" vehsPerHour="1220" departSpeed="random" departLane="best" departPos="free"/>
