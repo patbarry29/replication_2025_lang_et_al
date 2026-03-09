@@ -1,26 +1,34 @@
 import math
 
-from config import W_MAX, ALPHA, R_MIN_RATIO, CAPACITY_PER_STEP
+from config import RAMP_CAPACITY_VEH_S, SIM_STEPS_PER_CONTROL, W_MAX, ALPHA, R_MIN_RATIO
 
-def calculate_lower_bound(demand_prev, current_queue):
-    # Calculate the minimum required discharge in vehicles per step
-    # Formula: d(k-1) - (alpha * w_max - w(k))
-    required_discharge_veh = demand_prev - (ALPHA * W_MAX - current_queue)
+def calculate_lower_bound(demand_prev_veh_s, current_queue):
+    # Calculate maximum allowed vehicles based on adjustment coefficient
+    max_allowed_queue = ALPHA * W_MAX
 
-    # Convert the required discharge into an action ratio [0, 1]
-    r_lb_raw = required_discharge_veh / CAPACITY_PER_STEP
+    # Calculate how many more vehicles the ramp can hold
+    available_storage = max_allowed_queue - current_queue
 
-    # Apply the absolute minimum rate to prevent complete closure
+    # Convert available storage into an absorption flow rate (veh/s)
+    absorption_rate_veh_s = available_storage / SIM_STEPS_PER_CONTROL
+
+    # Calculate required discharge rate (veh/s) using Equation 13
+    required_discharge_veh_s = demand_prev_veh_s - absorption_rate_veh_s
+
+    # Convert the required discharge rate into an action ratio [0, 1]
+    r_lb_raw = required_discharge_veh_s / RAMP_CAPACITY_VEH_S
+
+    # Apply the absolute minimum rate
     r_lb = max(R_MIN_RATIO, r_lb_raw)
 
-    # Cap the lower bound at 1.0 (100% green time)
+    # Cap the lower bound at 1.0
     r_lb = min(1.0, r_lb)
 
     return r_lb
 
 def calculate_penalty(current_queue, demand_current, action_ratio, penalty_scaling_factor=2.0):
     # Predict step of spillback (k_sp) based on current dynamics
-    discharge_current = action_ratio * CAPACITY_PER_STEP
+    discharge_current = action_ratio * RAMP_CAPACITY_VEH_S
     net_accumulation = demand_current - discharge_current
 
     if net_accumulation <= 0:

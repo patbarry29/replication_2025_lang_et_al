@@ -4,7 +4,7 @@ from config import MAX_TTS, AVG_TTS
 
 def run_episode(env, controller, control_steps, sim_steps_per_control, is_training=False):
     trajectory = {"states": [], "actions": [], "log_probs": [], "values": [], "rewards": [], "dones": []}
-    history = {"green_times": [], "queues": [], "downstream_speeds": [], "tts_total": 0}
+    history = {"green_times": [], "queues": [], "downstream_speeds": [], "tts_total": 0, "lower_bound": []}
     num_replacements = 0
 
     # Bootstrap initial state
@@ -16,7 +16,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
 
     for step in range(control_steps):
         # 1. Get action from controller
-        action_ratio, log_prob, value, raw_action, state_tensor, replaced = controller.execute_control(raw_state, is_training)
+        action_ratio, log_prob, value, raw_action, state_tensor, extras = controller.execute_control(raw_state, is_training)
 
         green_duration = int(action_ratio * sim_steps_per_control)
         red_duration = sim_steps_per_control - green_duration
@@ -36,10 +36,11 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
 
         # 5. Record data
         history["tts_total"] += step_tts
-        history["green_times"].append(green_duration)
+        history["green_times"].append(action_ratio)
         history["queues"].append(final_queue)
         history["downstream_speeds"].append(next_state_dict["downstream"]["speed"])
-        num_replacements += replaced
+        history["lower_bound"].append(extras[1])
+        num_replacements += extras[0]
 
         if is_training:
             trajectory["states"].append(state_tensor)

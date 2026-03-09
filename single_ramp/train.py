@@ -51,7 +51,8 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
     )
 
     line, ax, fig = init_plot(use_replacement)
-    all_scores, history_steps, history_lengths, history_tts, history_replacement = [], [], [], [], []
+    all_scores, history_steps, history_lengths, history_tts = [], [], [], []
+    history_actions, history_replacement, history_lb = [], [], []
     reward_history = {}
     cumulative_steps = 0
 
@@ -92,6 +93,8 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
         history_steps.append(cumulative_steps)
         history_lengths.append(len(rewards))
         history_tts.append(history["tts_total"])
+        history_actions.append(history["green_times"])
+        history_lb.append(history["lower_bound"])
         history_replacement.append(replacement_pct)
 
         update_live_plot(all_scores, line, ax, fig)
@@ -99,20 +102,20 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
 
         # Save checkpoints
         if episode % 10 == 0:
-            reward_history[episode] = rewards.copy()
+            # reward_history[episode] = rewards.copy()
 
-            fig_reward, ax_reward = plt.subplots()
+            # fig_reward, ax_reward = plt.subplots()
 
-            for ep, rew in reward_history.items():
-                ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
+            # for ep, rew in reward_history.items():
+            #     ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
 
-            ax_reward.legend()
-            ax_reward.axhline(0, linestyle="--", color="r", alpha=0.5)
-            ax_reward.set_xlabel("Step")
-            ax_reward.set_ylabel("Reward")
-            ax_reward.set_title("Reward Comparison Across Episodes")
-            fig_reward.savefig(os.path.join("plots", f"rewards_episode{episode}.png"))
-            plt.close(fig_reward)
+            # ax_reward.legend()
+            # ax_reward.axhline(0, linestyle="--", color="r", alpha=0.5)
+            # ax_reward.set_xlabel("Step")
+            # ax_reward.set_ylabel("Reward")
+            # ax_reward.set_title("Reward Comparison Across Episodes")
+            # fig_reward.savefig(os.path.join("plots", f"rewards_episode{episode}.png"))
+            # plt.close(fig_reward)
 
             torch.save(agent.state_dict(), os.path.join(model_dir, f"model_ep{episode}.pth"))
             with open(os.path.join(model_dir, f"state_tracker_ep{episode}.pkl"), "wb") as f:
@@ -124,11 +127,24 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
         pickle.dump({
             "scores": all_scores, "steps": history_steps,
             "lengths": history_lengths, "tts": history_tts,
-            "replacement_pct": history_replacement
+            "replacement_pct": history_replacement, "lower_bounds": history_lb
         }, f)
 
     plt.ioff()
     plt.close(fig)
+
+    plotted = False
+
+    for i, ep_lb in enumerate(history_lb):
+        if max(ep_lb) > 0.1:
+            plt.plot(ep_lb, label=f"Episode {i}")
+            # plt.plot(history_actions[i], label=f"Episode {i}")
+            plotted = True
+
+    if plotted:
+        plt.legend()
+
+    plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

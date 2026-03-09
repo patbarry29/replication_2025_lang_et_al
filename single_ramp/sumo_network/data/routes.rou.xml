@@ -47,7 +47,7 @@
     />
 
     <route id="route_main" edges="edge_virtual_main edge_mainline edge_merge edge_downstream"/>
-    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_ramp_1 edge_merge edge_downstream"/>
+    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
 
     <flow id="main_warmup" type="car_main" route="route_main" begin="0" end="600" vehsPerHour="6706" departSpeed="random" departLane="best" departPos="free"/>
 

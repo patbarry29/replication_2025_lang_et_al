@@ -54,6 +54,7 @@ class RLController(BaseController):
         state = self.normalize_fnc(raw_state_list, self.state_tracker)
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
         replaced = 0
+        lower_bound = 0.1
 
         with torch.no_grad():
             dist, value = self.agent(state_tensor)
@@ -68,4 +69,4 @@ class RLController(BaseController):
             replaced = int(action_ratio < lower_bound)
             action_ratio = max(action_ratio, lower_bound)
 
-        return action_ratio, log_prob, value, action, state_tensor, replaced
+        return action_ratio, log_prob, value, action, state_tensor, (replaced, lower_bound)
