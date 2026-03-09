@@ -6,7 +6,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from config import SUMO_PATH
+SUMO_PATH = os.path.join("..", "sumo_network", "data", "simulation.sumocfg")
 
 # =========================
 # CONFIG
@@ -15,7 +15,7 @@ from config import SUMO_PATH
 SUMO_BINARY = "sumo"     # or sumo-gui
 
 STEP_LENGTH = 1
-SIM_END = 2250
+SIM_END = 2300
 
 # background flow from paper
 q0 = 8160 / 3600.0   # veh/sec
@@ -65,6 +65,7 @@ while traci.simulation.getTime() < SIM_END:
 
     for loc, dets in detector_groups.items():
         step_count = 0
+        # before = step_count
         for det in dets:
             # FIX: Only count vehicles that have completely passed to avoid double-counting
             step_count += traci.inductionloop.getLastStepVehicleNumber(det)

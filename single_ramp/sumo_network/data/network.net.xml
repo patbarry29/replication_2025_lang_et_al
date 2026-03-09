@@ -101,11 +101,11 @@
         <lane id="edge_ramp_out_0" index="0" speed="16.67" length="36.81" shape="-69.11,21.12 -89.23,-9.71"/>
         <lane id="edge_ramp_out_1" index="1" speed="16.67" length="36.81" shape="-66.43,19.38 -86.55,-11.45"/>
     </edge>
-    <edge id="edge_virtual_main" from="J15" to="J5" priority="-1" spreadType="center" length="150.00" shape="514.29,524.63 416.58,439.76">
-        <lane id="edge_virtual_main_0" index="0" speed="27.78" length="150.00" shape="510.90,528.05 413.54,443.48"/>
-        <lane id="edge_virtual_main_1" index="1" speed="27.78" length="150.00" shape="513.00,525.63 415.64,441.06"/>
-        <lane id="edge_virtual_main_2" index="2" speed="27.78" length="150.00" shape="515.10,523.21 417.74,438.64"/>
-        <lane id="edge_virtual_main_3" index="3" speed="27.78" length="150.00" shape="517.20,520.80 419.83,436.23"/>
+    <edge id="edge_virtual_main" from="J15" to="J5" priority="-1" spreadType="center" length="200.00" shape="514.29,524.63 416.58,439.76">
+        <lane id="edge_virtual_main_0" index="0" speed="27.78" length="200.00" shape="510.90,528.05 413.54,443.48"/>
+        <lane id="edge_virtual_main_1" index="1" speed="27.78" length="200.00" shape="513.00,525.63 415.64,441.06"/>
+        <lane id="edge_virtual_main_2" index="2" speed="27.78" length="200.00" shape="515.10,523.21 417.74,438.64"/>
+        <lane id="edge_virtual_main_3" index="3" speed="27.78" length="200.00" shape="517.20,520.80 419.83,436.23"/>
     </edge>
     <edge id="edge_virtual_ramp" from="J13" to="J3" priority="-1" spreadType="center" length="100.00">
         <lane id="edge_virtual_ramp_0" index="0" speed="27.78" length="100.00" shape="59.62,236.74 1.79,140.37"/>

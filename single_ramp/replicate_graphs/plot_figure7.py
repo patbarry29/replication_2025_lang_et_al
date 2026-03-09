@@ -4,11 +4,14 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # --- Configuration ---
-SUMO_NET_FILE = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data", "network.net.xml") # Update if needed
-SUMO_ROU_FILE = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data", "dynamic_routes.rou.xml")
-SUMO_CFG_FILE = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","sumo_network","data", "simulation.sumocfg")
+SUMO_NET_FILE = os.path.join("sumo_network","data", "network.net.xml")
+SUMO_ROU_FILE = os.path.join("sumo_network","data", "dynamic_routes.rou.xml")
+SUMO_CFG_FILE = os.path.join("sumo_network","data", "simulation.sumocfg")
 
 # Grid Search Parameters (from the paper)
 MAINLINE_FLOWS = [7400, 7800, 8200, 8600, 9000, 9400]
@@ -103,7 +106,8 @@ def generate_heatmap():
     ax.xaxis.set_ticks_position('bottom')
 
     plt.tight_layout()
-    plt.savefig(r"C:\Users\pbarry\Documents\2025_yang_dqn\with_traffic_light\paper_model\replicate_graphs\plots\fig_7.png", dpi=300, bbox_inches="tight")
+    fig_path = os.path.join("plots", "fig_7.png")
+    plt.savefig(fig_path, dpi=300, bbox_inches="tight")
     plt.show()
 
 if __name__ == "__main__":

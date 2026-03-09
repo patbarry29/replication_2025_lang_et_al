@@ -1,16 +1,18 @@
 import os
 import pickle
 import matplotlib.pyplot as plt
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from single_ramp.config import BASELINE_HISTORY_PATH, REPLACEMENT_HISTORY_PATH
 
 def plot_network_tts():
-    baseline_path = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","paper_model","models", "training_history_baseline.pkl")
-    replacement_path = os.path.join(r"C:\Users","pbarry","Documents","2025_yang_dqn","with_traffic_light","paper_model","models", "training_history_replacement.pkl")
-
     # Load data
-    with open(baseline_path, "rb") as f:
+    with open(BASELINE_HISTORY_PATH, "rb") as f:
         baseline_data = pickle.load(f)
 
-    with open(replacement_path, "rb") as f:
+    with open(REPLACEMENT_HISTORY_PATH, "rb") as f:
         replacement_data = pickle.load(f)
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -59,7 +61,8 @@ def plot_network_tts():
     )
 
     plt.tight_layout()
-    plt.savefig(r"C:\Users\pbarry\Documents\2025_yang_dqn\with_traffic_light\paper_model\replicate_graphs\plots\fig_9.png", dpi=300, bbox_inches="tight")
+    fig_path = os.path.join("plots", "fig_9.png")
+    plt.savefig(fig_path, dpi=300, bbox_inches="tight")
     plt.show()
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ class BaseController:
 
 class NoControlBaseline(BaseController):
     def execute_control(self, raw_state_list, is_training=False):
-        return 1.0, None, None, None, None  # 100% green ratio
+        return 1.0, None, None, None, None, False  # 100% green ratio
 
 class PiAlineaController(BaseController):
     def __init__(self, target_occ=14.0, k_r=90.0, k_p=10.0, min_ratio=0.1, max_ratio=1.0, sim_steps_per_control=15.0):
@@ -41,7 +41,7 @@ class PiAlineaController(BaseController):
         # Clamp between minimum and maximum allowed ratios
         action_ratio = max(self.min_ratio, min(self.max_ratio, action_ratio))
 
-        return action_ratio, None, None, None, None
+        return action_ratio, None, None, None, None, False
 
 class RLController(BaseController):
     def __init__(self, agent, state_tracker, normalize_fnc, use_replacement=False):
@@ -53,6 +53,7 @@ class RLController(BaseController):
     def execute_control(self, raw_state_list, is_training=False):
         state = self.normalize_fnc(raw_state_list, self.state_tracker)
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        replaced = 0
 
         with torch.no_grad():
             dist, value = self.agent(state_tensor)
@@ -64,6 +65,7 @@ class RLController(BaseController):
             prev_demand = raw_state_list[7]  # index 7 is ramp_arr
             curr_queue = raw_state_list[6]   # index 6 is queue length
             lower_bound = calculate_lower_bound(prev_demand, curr_queue)
+            replaced = int(action_ratio < lower_bound)
             action_ratio = max(action_ratio, lower_bound)
 
-        return action_ratio, log_prob, value, action, state_tensor
+        return action_ratio, log_prob, value, action, state_tensor, replaced

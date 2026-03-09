@@ -14,7 +14,7 @@ def run_single_experiment(args):
 
     cmd = ["python", "train.py", "--seed", str(seed), "--num_episodes", str(250)]
     if use_replacement:
-        cmd.append("--use_replacement")
+        cmd.append("--dynamic_norm")
 
     # Run silently to avoid terminal spam, only print on completion
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -22,6 +22,7 @@ def run_single_experiment(args):
     return True
 
 def load_and_plot(use_replacement, color):
+    # name = "Dynamic Normalisation" if use_replacement else "Static Normalisation"
     variant = "replacement" if use_replacement else "baseline"
     model_dir = "models_replacement" if use_replacement else "models"
     all_scores = []

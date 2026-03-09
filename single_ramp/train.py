@@ -13,13 +13,13 @@ from config import (
 from env import RampMeterEnv
 from controllers import RLController
 from runner import run_episode
-from utils import normalize_static
+from utils import normalize_static, normalize_dynamic
 from model import SharedActorCritic
 from ppo_loss import compute_gae, ppo_update
 from stats import RunningStat
 from live_plot import init_plot, update_live_plot
 
-def train(use_replacement, seed, num_episodes):
+def train(use_replacement, seed, num_episodes, dynamic_norm):
     model_dir = "models_replacement" if use_replacement else "models"
     os.makedirs(model_dir, exist_ok=True)
 
@@ -39,15 +39,19 @@ def train(use_replacement, seed, num_episodes):
     optimizer = torch.optim.Adam(agent.parameters(), lr=3e-4)
     state_tracker = RunningStat(shape=(STATE_DIM,))
 
+    normalize_fnc = normalize_static
+    if dynamic_norm:
+        normalize_fnc = normalize_dynamic
+
     controller = RLController(
         agent=agent,
         state_tracker=state_tracker,
-        normalize_fnc=normalize_static,
+        normalize_fnc=normalize_fnc,
         use_replacement=use_replacement
     )
 
     line, ax, fig = init_plot(use_replacement)
-    all_scores, history_steps, history_lengths, history_tts = [], [], [], []
+    all_scores, history_steps, history_lengths, history_tts, history_replacement = [], [], [], [], []
     reward_history = {}
     cumulative_steps = 0
 
@@ -55,7 +59,7 @@ def train(use_replacement, seed, num_episodes):
         env.start()
 
         # Execute the episode using the runner
-        trajectory, history, _ = run_episode(
+        trajectory, history, _, replacement_pct = run_episode(
             env=env,
             controller=controller,
             control_steps=CONTROL_STEPS_PER_EPISODE,
@@ -88,6 +92,7 @@ def train(use_replacement, seed, num_episodes):
         history_steps.append(cumulative_steps)
         history_lengths.append(len(rewards))
         history_tts.append(history["tts_total"])
+        history_replacement.append(replacement_pct)
 
         update_live_plot(all_scores, line, ax, fig)
         print(f"Episode {episode} | Reward: {total_reward:.2f} | Steps: {len(rewards)} | TTS: {history['tts_total']:.0f}")
@@ -102,7 +107,7 @@ def train(use_replacement, seed, num_episodes):
                 ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
 
             ax_reward.legend()
-            ax_reward.axhline(0, linestyle="--", color="r", alpha='0.5')
+            ax_reward.axhline(0, linestyle="--", color="r", alpha=0.5)
             ax_reward.set_xlabel("Step")
             ax_reward.set_ylabel("Reward")
             ax_reward.set_title("Reward Comparison Across Episodes")
@@ -118,7 +123,8 @@ def train(use_replacement, seed, num_episodes):
     with open(os.path.join(model_dir, f"training_history_{file_prefix}_seed{seed}.pkl"), "wb") as f:
         pickle.dump({
             "scores": all_scores, "steps": history_steps,
-            "lengths": history_lengths, "tts": history_tts
+            "lengths": history_lengths, "tts": history_tts,
+            "replacement_pct": history_replacement
         }, f)
 
     plt.ioff()
@@ -127,6 +133,7 @@ def train(use_replacement, seed, num_episodes):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_replacement", action="store_true")
+    parser.add_argument("--dynamic_norm", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_episodes", type=int, default=100)
     args = parser.parse_args()
@@ -135,4 +142,4 @@ if __name__ == "__main__":
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    train(args.use_replacement, args.seed, args.num_episodes)
+    train(args.use_replacement, args.seed, args.num_episodes, args.dynamic_norm)

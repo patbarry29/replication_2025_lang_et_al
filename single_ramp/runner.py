@@ -5,6 +5,7 @@ from config import MAX_TTS, AVG_TTS
 def run_episode(env, controller, control_steps, sim_steps_per_control, is_training=False):
     trajectory = {"states": [], "actions": [], "log_probs": [], "values": [], "rewards": [], "dones": []}
     history = {"green_times": [], "queues": [], "downstream_speeds": [], "tts_total": 0}
+    num_replacements = 0
 
     # Bootstrap initial state
     env.apply_action_and_get_tts(sim_steps_per_control, 0)
@@ -15,7 +16,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
 
     for step in range(control_steps):
         # 1. Get action from controller
-        action_ratio, log_prob, value, raw_action, state_tensor = controller.execute_control(raw_state, is_training)
+        action_ratio, log_prob, value, raw_action, state_tensor, replaced = controller.execute_control(raw_state, is_training)
 
         green_duration = int(action_ratio * sim_steps_per_control)
         red_duration = sim_steps_per_control - green_duration
@@ -38,6 +39,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
         history["green_times"].append(green_duration)
         history["queues"].append(final_queue)
         history["downstream_speeds"].append(next_state_dict["downstream"]["speed"])
+        num_replacements += replaced
 
         if is_training:
             trajectory["states"].append(state_tensor)
@@ -52,8 +54,8 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
         if done:
             break
 
-    mean_reward = np.mean(trajectory["rewards"])
+    # mean_reward = np.mean(trajectory["rewards"])
     num_steps = len(history["green_times"])
-    print(f"\n\n AVERAGE REWARD ({num_steps}): {mean_reward}\n")
+    # print(f"\n\n AVERAGE REWARD ({num_steps}): {mean_reward}\n")
 
-    return trajectory, history, raw_state
+    return trajectory, history, raw_state, (num_replacements/num_steps)*100
