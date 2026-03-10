@@ -8,8 +8,8 @@ R_MIN_RATIO = 0.1
 RAMP_CAPACITY_VEH_S = 1930.0 / 3600.0
 
 MAX_SPEED = 27.78
-MAX_TTS = 4119.0
-AVG_TTS = 3405.64
+MAX_TTS = 4098.0
+AVG_TTS = 3457.55
 TLS_ID = "junction_ramp"
 SUMO_PATH = os.path.join("sumo_network", "data", "simulation.sumocfg")
 

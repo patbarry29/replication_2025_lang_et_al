@@ -20,7 +20,7 @@ def calculate_lower_bound(demand_prev_veh_s, current_queue):
     r_lb = min(1.0, max(R_MIN_RATIO, r_lb_raw))
 
     return r_lb
-def calculate_penalty(current_queue, demand_current, action_ratio, penalty_scaling_factor=2.0):
+def calculate_penalty(current_queue, demand_current, action_ratio, penalty_scaling_factor=0.1):
     # Predict step of spillback (k_sp) based on current dynamics
     discharge_current = action_ratio * RAMP_CAPACITY_VEH_S
     net_accumulation_veh_s = demand_current - discharge_current

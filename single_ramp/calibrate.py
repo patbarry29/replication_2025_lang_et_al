@@ -1,6 +1,6 @@
 import numpy as np
 from config import (
-    SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
+    RAMP_DETS, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
     UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS, TLS_ID
 )
 from env import RampMeterEnv
@@ -12,7 +12,7 @@ def run_calibration_episode():
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd, tls_id=TLS_ID, upstream_dets=UPSTREAM_DETS,
         downstream_dets=DOWNSTREAM_DETS, ramp_arr_dets=RAMP_ARR_DETS,
-        ramp_dep_dets=RAMP_DEP_DETS, ramp_edge="edge_ramp_2"
+        ramp_dep_dets=RAMP_DEP_DETS, ramp_detector=RAMP_DETS
     )
 
     env.start()

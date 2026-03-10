@@ -3,10 +3,10 @@ import pickle
 import time
 import numpy as np
 import torch
-import matplotlib.subplots as plt
+import matplotlib as plt
 
 from config import (
-    STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
+    RAMP_DETS, STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
     UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS, TLS_ID
 )
 from env import RampMeterEnv
@@ -21,7 +21,7 @@ def visualise(model_path, tracker_path):
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd, tls_id=TLS_ID, upstream_dets=UPSTREAM_DETS,
         downstream_dets=DOWNSTREAM_DETS, ramp_arr_dets=RAMP_ARR_DETS,
-        ramp_dep_dets=RAMP_DEP_DETS, ramp_edge="edge_ramp_2"
+        ramp_dep_dets=RAMP_DEP_DETS, ramp_detector=RAMP_DETS
     )
 
     agent = SharedActorCritic(STATE_DIM)
@@ -54,7 +54,7 @@ def visualise(model_path, tracker_path):
         prev_demand = raw_state[7]
         curr_queue = raw_state[6]
 
-        action_ratio, _, _, _ = controller.execute_control(raw_state, is_training=False)
+        action_ratio, _, _, _, _, _ = controller.execute_control(raw_state, is_training=False)
 
         lower_bound = calculate_lower_bound(prev_demand, curr_queue)
         replaced = action_ratio == lower_bound and lower_bound > 0.0
