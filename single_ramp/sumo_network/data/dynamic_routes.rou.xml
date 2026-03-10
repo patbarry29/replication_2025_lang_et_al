@@ -1,10 +1,10 @@
 <routes>
 <vType id="paper_car" length="5.0" minGap="2.0" accel="2.6" decel="4.5" sigma="0.3" tau="1.1"
-                      lcCooperative="1.0" lcSpeedGain="2.5" lcImpatience="1.0"
-                      lcOvertakeRight="0.3" lcLookaheadLeft="0.5" lcAssertive="3.0" lcStrategic="0.8"/>
+                    lcCooperative="1.0" lcSpeedGain="2.5" lcImpatience="1.0"
+                    lcOvertakeRight="0.3" lcLookaheadLeft="0.5" lcAssertive="3.0" lcStrategic="0.8"/>
 
     <route id="route_main" edges="edge_virtual_main edge_mainline edge_merge edge_downstream"/>
-    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_ramp_1 edge_merge edge_downstream"/>
+    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
     
 
     <flow id="flow_main" type="paper_car" route="route_main" begin="0" end="3600" vehsPerHour="9400" departLane="best" departSpeed="max"/>

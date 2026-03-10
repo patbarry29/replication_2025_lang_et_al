@@ -1,34 +1,25 @@
-import os
 import traci
-import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from config import (SIM_STEPS_PER_CONTROL, SUMO_PATH, TLS_ID)
 
-from config import (SIM_STEPS_PER_CONTROL, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, TLS_ID)
-
-SUMO_PATH = os.path.join("..", "..", "sumo_network", "data", "simulation.sumocfg")
-EDGE_ID = "edge_ramp_2"
+detector_ids = ["det_ramp_queue_0", "det_ramp_queue_1"]
 
 def evaluate_max_queue():
-    # Start SUMO with GUI
-    sumo_cmd = ["sumo-gui", "-c", SUMO_PATH, "--start"]
+    sumo_cmd = ["sumo", "-c", SUMO_PATH]
+    print(SUMO_PATH)
     traci.start(sumo_cmd)
 
     max_queue = 0
 
-    print(f"Starting queue capacity test on '{EDGE_ID}'...")
-
-    for step in range(CONTROL_STEPS_PER_EPISODE):
+    for step in range(400):
         # Force the traffic light to stay red every step
-        # "rr" matches the 2-lane connection we set up in the XML
         traci.trafficlight.setRedYellowGreenState(TLS_ID, "rr")
 
         # Advance the simulation
         traci.simulationStep()
 
-        # Check queue every SIM_STEPS_PER_CONTROL steps
         if step % SIM_STEPS_PER_CONTROL == 0:
-            current_queue = traci.edge.getLastStepVehicleNumber(EDGE_ID)
+            current_queue = sum(traci.lanearea.getJamLengthVehicle(det) for det in detector_ids)
 
             # Update max queue
             if current_queue > max_queue:

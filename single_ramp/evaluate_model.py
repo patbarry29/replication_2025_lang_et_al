@@ -39,7 +39,7 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
         )
 
     env.start()
-    _, history, _ = run_episode(
+    _, history, _, _ = run_episode(
         env=env,
         controller=controller,
         control_steps=CONTROL_STEPS_PER_EPISODE,
@@ -63,12 +63,12 @@ if __name__ == "__main__":
     tts_alinea, mq_alinea, sb_alinea = run_evaluation(alinea=True)
     print(f"ALINEA     -> TTS: {tts_alinea:.2f} h | Max Queue: {mq_alinea} | Spillback: {sb_alinea}")
 
-    base_model = os.path.join("models", "model_ep100.pth")
-    base_tracker = os.path.join("models", "state_tracker_ep100.pkl")
+    base_model = os.path.join("models", "model_ep250.pth")
+    base_tracker = os.path.join("models", "state_tracker_ep250.pkl")
     tts_base, mq_base, sb_base = run_evaluation(model_path=base_model, tracker_path=base_tracker)
     print(f"RL-Based   -> TTS: {tts_base:.2f} h | Max Queue: {mq_base} | Spillback: {sb_base}")
 
-    # rep_model = os.path.join("models_replacement", "model_ep100.pth")
-    # rep_tracker = os.path.join("models_replacement", "state_tracker_ep100.pkl")
-    # tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
-    # print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")
+    rep_model = os.path.join("models_replacement", "model_ep100.pth")
+    rep_tracker = os.path.join("models_replacement", "state_tracker_ep100.pkl")
+    tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
+    print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")

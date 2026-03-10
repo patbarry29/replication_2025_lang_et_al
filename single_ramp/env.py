@@ -2,14 +2,14 @@ import traci
 import numpy as np
 
 class RampMeterEnv:
-    def __init__(self, sumo_cmd, tls_id, upstream_dets, downstream_dets, ramp_arr_dets, ramp_dep_dets, ramp_edge, max_speed=27.78):
+    def __init__(self, sumo_cmd, tls_id, upstream_dets, downstream_dets, ramp_arr_dets, ramp_dep_dets, ramp_detector, max_speed=27.78):
         self.sumo_cmd = sumo_cmd
         self.tls_id = tls_id
         self.upstream_dets = upstream_dets
         self.downstream_dets = downstream_dets
         self.ramp_arr_dets = ramp_arr_dets
         self.ramp_dep_dets = ramp_dep_dets
-        self.ramp_edge = ramp_edge
+        self.ramp_detector = ramp_detector
         self.max_speed = max_speed
 
     def start(self):
@@ -46,7 +46,7 @@ class RampMeterEnv:
         ramp_dep = dep_total / interval_steps
 
         # Queue is an instantaneous snapshot
-        queue_length = traci.edge.getLastStepVehicleNumber(self.ramp_edge)
+        queue_length = sum(traci.lanearea.getJamLengthVehicle(det) for det in self.ramp_detector)
 
         return {
             "upstream": {"occ": up_occ, "speed": up_speed, "veh": up_veh},

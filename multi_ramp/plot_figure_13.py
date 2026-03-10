@@ -1,8 +1,7 @@
 import traci
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
-import os
+
 
 # =========================
 # CONFIGURATION
@@ -12,6 +11,8 @@ SUMO_PATH = "simulation.sumocfg"
 STEP_LENGTH = 1
 SIM_END = 4500
 FREE_FLOW_SPEED = 27.78  # m/s
+
+detector_ids = ["det_ramp_queue_0", "det_ramp_queue_1"]
 
 # Background flow from paper
 q0 = 8100 / 3600.0  # veh/sec

@@ -7,7 +7,7 @@ import torch
 import matplotlib.pyplot as plt
 
 from config import (
-    STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
+    RAMP_DETS, STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
     UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS, TLS_ID
 )
 from env import RampMeterEnv
@@ -32,7 +32,7 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
         downstream_dets=DOWNSTREAM_DETS,
         ramp_arr_dets=RAMP_ARR_DETS,
         ramp_dep_dets=RAMP_DEP_DETS,
-        ramp_edge="edge_ramp_2"
+        ramp_detector=RAMP_DETS
     )
 
     agent = SharedActorCritic(STATE_DIM)
@@ -53,7 +53,7 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
     line, ax, fig = init_plot(use_replacement)
     all_scores, history_steps, history_lengths, history_tts = [], [], [], []
     history_actions, history_replacement, history_lb = [], [], []
-    reward_history = {}
+    # reward_history = {}
     cumulative_steps = 0
 
     for episode in range(1, num_episodes+1):
@@ -98,7 +98,7 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
         history_replacement.append(replacement_pct)
 
         update_live_plot(all_scores, line, ax, fig)
-        print(f"Episode {episode} | Reward: {total_reward:.2f} | Steps: {len(rewards)} | TTS: {history['tts_total']:.0f}")
+        print(f"Episode {episode} | Reward: {total_reward:.2f} | Steps: {len(rewards)} | TTS: {history['tts_total']:.0f} | Max Queue: {max(history['queues'])}")
 
         # Save checkpoints
         if episode % 10 == 0:

@@ -7,7 +7,7 @@ class BaseController:
 
 class NoControlBaseline(BaseController):
     def execute_control(self, raw_state_list, is_training=False):
-        return 1.0, None, None, None, None, False  # 100% green ratio
+        return 1.0, None, None, None, None, [False, None]  # 100% green ratio
 
 class PiAlineaController(BaseController):
     def __init__(self, target_occ=14.0, k_r=90.0, k_p=10.0, min_ratio=0.1, max_ratio=1.0, sim_steps_per_control=15.0):
@@ -41,7 +41,7 @@ class PiAlineaController(BaseController):
         # Clamp between minimum and maximum allowed ratios
         action_ratio = max(self.min_ratio, min(self.max_ratio, action_ratio))
 
-        return action_ratio, None, None, None, None, False
+        return action_ratio, None, None, None, None, [False, None]
 
 class RLController(BaseController):
     def __init__(self, agent, state_tracker, normalize_fnc, use_replacement=False):

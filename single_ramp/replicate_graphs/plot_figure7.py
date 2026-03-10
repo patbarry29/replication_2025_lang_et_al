@@ -4,14 +4,11 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # --- Configuration ---
-SUMO_NET_FILE = os.path.join("sumo_network","data", "network.net.xml")
-SUMO_ROU_FILE = os.path.join("sumo_network","data", "dynamic_routes.rou.xml")
-SUMO_CFG_FILE = os.path.join("sumo_network","data", "simulation.sumocfg")
+SUMO_NET_FILE = os.path.join("..", "sumo_network","data", "network.net.xml")
+SUMO_ROU_FILE = os.path.join("..", "sumo_network","data", "dynamic_routes.rou.xml")
+SUMO_CFG_FILE = os.path.join("..", "sumo_network","data", "simulation.sumocfg")
 
 # Grid Search Parameters (from the paper)
 MAINLINE_FLOWS = [7400, 7800, 8200, 8600, 9000, 9400]
@@ -19,21 +16,20 @@ RAMP_FLOWS = [600, 800, 1000, 1200, 1400, 1600]
 
 # Simulation parameters
 SIM_STEPS = 3600
-WARMUP_STEPS = 1800  # Discard early data before steady-state is reached
+WARMUP_STEPS = 1800
 TLS_ID = "junction_ramp"
 DOWNSTREAM_DETS = [f"det_loc2_{i}" for i in range(4)]
 
 def generate_route_file(main_flow, ramp_flow):
-    """Dynamically generates a route file for the specific flow combination."""
     # Ensure the car-following parameters match the paper's genetic algorithm calibration
     vtype = """<vType id="paper_car" length="5.0" minGap="2.0" accel="2.6" decel="4.5" sigma="0.3" tau="1.1"
-                      lcCooperative="1.0" lcSpeedGain="2.5" lcImpatience="1.0"
-                      lcOvertakeRight="0.3" lcLookaheadLeft="0.5" lcAssertive="3.0" lcStrategic="0.8"/>"""
+                    lcCooperative="1.0" lcSpeedGain="2.5" lcImpatience="1.0"
+                    lcOvertakeRight="0.3" lcLookaheadLeft="0.5" lcAssertive="3.0" lcStrategic="0.8"/>"""
 
     # Define the physical routes through your updated network
     routes = """
     <route id="route_main" edges="edge_virtual_main edge_mainline edge_merge edge_downstream"/>
-    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_ramp_1 edge_merge edge_downstream"/>
+    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
     """
 
     # Define continuous flows for 1 hour
@@ -66,10 +62,9 @@ def run_simulation_and_get_occupancy():
         traci.trafficlight.setRedYellowGreenState(TLS_ID, "GG")
         traci.simulationStep()
 
-        # Only collect data after warmup period to ensure queue has stabilized
         if step > WARMUP_STEPS and step % 15 == 0:
             occ = np.mean([traci.inductionloop.getLastIntervalOccupancy(d) for d in DOWNSTREAM_DETS])
-            if occ >= 0:  # Ignore -1.0 readings
+            if occ >= 0:
                 occupancies.append(occ)
 
     traci.close()
@@ -98,7 +93,7 @@ def generate_heatmap():
 
     # REMOVED vmin and vmax so it scales dynamically to your data
     ax = sns.heatmap(df, annot=True, fmt=".2f", cmap="RdBu_r", cbar_kws={'label': 'Occupancy (%)'},
-                     linewidths=.5)
+                    linewidths=.5)
 
     plt.title("Variation of the downstream occupancy")
     plt.xlabel("Mainline flow (veh/h)")

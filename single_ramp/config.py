@@ -22,6 +22,7 @@ UPSTREAM_DETS = [f"det_upstream_{i}" for i in range(4)]
 DOWNSTREAM_DETS = [f"det_loc2_{i}" for i in range(4)] + [f"det_loc3_{i}" for i in range(4)]
 RAMP_ARR_DETS = [f"det_ramp_arr_{i}" for i in range(2)]
 RAMP_DEP_DETS = [f"det_ramp_dep_{i}" for i in range(2)]
+RAMP_DETS = ["det_ramp_queue_0", "det_ramp_queue_1"]
 
 STATE_MEANS = np.asarray([20.3471, 18.1585, 1.9217, 8.4116, 26.6432, 4.4006, 3.4375, 0.3303, 0.33,7.5])
 STATE_STDS = np.asarray([6.9003, 4.5178, 0.1949, 1.289, 0.2667, 0.5689, 0.9812, 0.0775, 0.079, 7.5])

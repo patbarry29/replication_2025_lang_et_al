@@ -15,8 +15,9 @@
     <inductionLoop id="det_ramp_dep_0" lane="edge_ramp_2_0" pos="130" freq="15" file="NUL"/>
     <inductionLoop id="det_ramp_dep_1" lane="edge_ramp_2_1" pos="130" freq="15" file="NUL"/>
 
+    <laneAreaDetector id="det_ramp_queue_0" lane="edge_ramp_2_0" pos="0" length="140" freq="15" file="NUL"/>
+    <laneAreaDetector id="det_ramp_queue_1" lane="edge_ramp_2_1" pos="0" length="140" freq="15" file="NUL"/>
 
-    <inductionLoop id="det_loc1_0" lane="edge_merge_0" pos="15" freq="15" file="NUL"/>
     <inductionLoop id="det_loc1_1" lane="edge_merge_1" pos="15" freq="15" file="NUL"/>
     <inductionLoop id="det_loc1_2" lane="edge_merge_2" pos="15" freq="15" file="NUL"/>
     <inductionLoop id="det_loc1_3" lane="edge_merge_3" pos="15" freq="15" file="NUL"/>
