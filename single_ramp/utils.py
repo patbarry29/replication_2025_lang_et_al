@@ -20,3 +20,5 @@ def format_state_vector(state_dict, last_green_duration):
         state_dict["downstream"]["occ"], state_dict["downstream"]["speed"], state_dict["downstream"]["veh"],
         state_dict["queue"], state_dict["ramp_arr"], state_dict["ramp_dep"], last_green_duration
     ]
+
+

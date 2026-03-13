@@ -1,4 +1,9 @@
 <additional>
+    <inductionLoop id="det_main_arr_0" lane="edge_mainline_0" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_main_arr_1" lane="edge_mainline_1" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_main_arr_2" lane="edge_mainline_2" pos="10" freq="15" file="NUL"/>
+    <inductionLoop id="det_main_arr_3" lane="edge_mainline_3" pos="10" freq="15" file="NUL"/>
+
     <inductionLoop id="det_upstream_0" lane="edge_mainline_0" pos="100" freq="15" file="NUL"/>
     <inductionLoop id="det_upstream_1" lane="edge_mainline_1" pos="100" freq="15" file="NUL"/>
     <inductionLoop id="det_upstream_2" lane="edge_mainline_2" pos="100" freq="15" file="NUL"/>

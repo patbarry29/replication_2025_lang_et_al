@@ -1,5 +1,6 @@
 import traci
 import numpy as np
+from config import MAIN_T, MAIN_VEH, RAMP_T, RAMP_VEH
 
 class RampMeterEnv:
     def __init__(self, sumo_cmd, tls_id, upstream_dets, downstream_dets, ramp_arr_dets, ramp_dep_dets, ramp_detector, max_speed=27.78):
@@ -56,6 +57,32 @@ class RampMeterEnv:
             "queue": queue_length
         }
 
+    def get_mainline_flow(self, t):
+        return np.interp(t, MAIN_T, MAIN_VEH)
+
+    def get_ramp_flow(self, t):
+        return np.interp(t, RAMP_T, RAMP_VEH)
+
+    def insertVehicles(self):
+        t = traci.simulation.getTime()
+
+        V_main = self.get_mainline_flow(t)
+        p_main = V_main / (3600 * 4)
+
+        for lane in range(4):
+            if np.random.random() < p_main:
+                traci.vehicle.add(f"main_{t}_{lane}", "route_main", typeID="car_main",
+                    departLane="best", departPos="free", departSpeed="random")
+
+        # Process Ramp
+        V_ramp = self.get_ramp_flow(t)
+        p_ramp = V_ramp / (3600 * 2)
+
+        for lane in range(2):
+            if np.random.random() < p_ramp:
+                traci.vehicle.add(f"ramp_{t}_{lane}", "route_ramp", typeID="car_ramp",
+                    departLane="best", departPos="free", departSpeed="random")
+
     def apply_action_and_get_tts(self, green_duration, red_duration):
         """Executes the traffic light phases, advances the simulation, and calculates Total Time Spent (TTS)."""
         tts = 0
@@ -68,6 +95,7 @@ class RampMeterEnv:
             traci.trafficlight.setRedYellowGreenState(self.tls_id, state)
 
             for _ in range(int(duration)):
+                self.insertVehicles()
                 traci.simulationStep()
                 tts += traci.vehicle.getIDCount()
 

@@ -29,3 +29,9 @@ STATE_STDS = np.asarray([6.9003, 4.5178, 0.1949, 1.289, 0.2667, 0.5689, 0.9812, 
 
 REPLACEMENT_HISTORY_PATH = os.path.join("..", "models_replacement", "training_history_replacement_seed42.pkl")
 BASELINE_HISTORY_PATH = os.path.join("..", "models", "training_history_baseline_seed42.pkl")
+
+MAIN_T = [0, 600, 600.1, 3300, 3600, 4200]
+MAIN_VEH = [7400, 7400, 7900, 7900, 4000, 4000]
+
+RAMP_T = [0, 600, 600.1, 3300, 3600, 4200]
+RAMP_VEH = [600, 1000, 1300, 1300, 500, 500]

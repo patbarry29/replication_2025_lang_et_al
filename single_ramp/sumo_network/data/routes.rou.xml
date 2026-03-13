@@ -1,97 +1,61 @@
 <routes>
-    <vType id="car_main"
-            length="5.0"
-            minGap="2.0"
-            maxSpeed="55.55"
-            accel="2.6"
-            decel="4.5"
-            sigma="0.3"
-            tau="1.1"
-            speedFactor="1.0"
-            speedDev="0.03"
-            lcCooperative="1.0"
-            lcAssertive="3.0"
-            lcSpeedGain="2.5"
-            lcLookaheadLeft="0.5"
-            lcStrategic="0.8"
-            lcOvertakeRight="0.3"
-            lcImpatience="1.0"
-            minGapLat="0.5"
-            latAlignment="arbitrary"
-            lcKeepRight="0"
-            laneChangeModel="SL2015"
-    />
+        <vType id="car_main"
+                length="5.0"
+                minGap="2.0"
+                maxSpeed="55.55"
+                accel="2.6"
+                decel="4.5"
+                sigma="0.3"
+                tau="1.1"
+                speedFactor="1.0"
+                speedDev="0.03"
+                lcCooperative="1.0"
+                lcAssertive="3.0"
+                lcSpeedGain="2.5"
+                lcLookaheadLeft="0.5"
+                lcStrategic="0.8"
+                lcOvertakeRight="0.3"
+                lcImpatience="1.0"
+                minGapLat="0.5"
+                latAlignment="arbitrary"
+                lcKeepRight="0"
+                laneChangeModel="SL2015"
+        />
 
-    <vType id="car_ramp"
-            length="5.0"
-            minGap="2.0"
-            accel="2.6"
-            decel="4.5"
-            sigma="0.3"
-            tau="1.1"
-            speedFactor="1.0"
-            speedDev="0.03"
-            lcCooperative="1.0"
-            lcAssertive="3.0"
-            maxSpeed="55.55"
-            lcSpeedGain="2.5"
-            lcLookaheadLeft="0.5"
-            lcStrategic="0.1"
-            lcOvertakeRight="0.3"
-            lcImpatience="1.0"
-            lcKeepRight="0"
-            latAlignment="arbitrary"
-            minGapLat="0.5"
-            laneChangeModel="SL2015"
-            color="1,0,0"
-    />
+        <vType id="car_ramp"
+                length="5.0"
+                minGap="2.0"
+                accel="2.6"
+                decel="4.5"
+                sigma="0.3"
+                tau="1.1"
+                speedFactor="1.0"
+                speedDev="0.03"
+                lcCooperative="1.0"
+                lcAssertive="3.0"
+                maxSpeed="55.55"
+                lcSpeedGain="2.5"
+                lcLookaheadLeft="0.5"
+                lcStrategic="0.1"
+                lcOvertakeRight="0.3"
+                lcImpatience="1.0"
+                lcKeepRight="0"
+                latAlignment="arbitrary"
+                minGapLat="0.5"
+                laneChangeModel="SL2015"
+                color="1,0,0"
+        />
 
-    <route id="route_main" edges="edge_virtual_main edge_mainline edge_merge edge_downstream"/>
-    <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
+        <route id="route_main" edges="edge_virtual_main edge_mainline edge_merge edge_downstream"/>
+        <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
 
-    <flow id="main_warmup" type="car_main" route="route_main" begin="0" end="600" vehsPerHour="6706" departSpeed="random" departLane="best" departPos="free"/>
+        <!-- <flow id="main_warmup" type="car_main" route="route_main" begin="0" end="600" vehsPerHour="7400" departSpeed="random" departLane="best" departPos="free"/>
+        <flow id="ramp_warmup" type="car_ramp" route="route_ramp" begin="0" end="600" vehsPerHour="600" departSpeed="random" departLane="best" departPos="free"/>
 
-    <flow id="ramp_warm_1" type="car_ramp" route="route_ramp" begin="0" end="60" vehsPerHour="620" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_2" type="car_ramp" route="route_ramp" begin="60" end="120" vehsPerHour="660" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_3" type="car_ramp" route="route_ramp" begin="120" end="180" vehsPerHour="700" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_4" type="car_ramp" route="route_ramp" begin="180" end="240" vehsPerHour="740" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_5" type="car_ramp" route="route_ramp" begin="240" end="300" vehsPerHour="780" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_6" type="car_ramp" route="route_ramp" begin="300" end="360" vehsPerHour="820" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_7" type="car_ramp" route="route_ramp" begin="360" end="420" vehsPerHour="860" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_8" type="car_ramp" route="route_ramp" begin="420" end="480" vehsPerHour="900" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_9" type="car_ramp" route="route_ramp" begin="480" end="540" vehsPerHour="940" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_warm_10" type="car_ramp" route="route_ramp" begin="540" end="600" vehsPerHour="980" departSpeed="random" departLane="best" departPos="free"/>
+        <flow id="main_peak" type="car_main" route="route_main" begin="600" end="3300" vehsPerHour="7900" departSpeed="random" departLane="best" departPos="free"/>
+        <flow id="ramp_peak" type="car_ramp" route="route_ramp" begin="600" end="3300" vehsPerHour="1300" departSpeed="random" departLane="best" departPos="free"/>
 
-    <flow id="main_peak" type="car_main" route="route_main" begin="600" end="3300" vehsPerHour="7900" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_peak" type="car_ramp" route="route_ramp" begin="600" end="3300" vehsPerHour="1300" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_1" type="car_main" route="route_main" begin="3300" end="3360" vehsPerHour="5933" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_1" type="car_ramp" route="route_ramp" begin="3300" end="3360" vehsPerHour="1220" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_2" type="car_main" route="route_main" begin="3360" end="3420" vehsPerHour="5800" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_2" type="car_ramp" route="route_ramp" begin="3360" end="3420" vehsPerHour="1060" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_3" type="car_main" route="route_main" begin="3420" end="3480" vehsPerHour="5667" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_3" type="car_ramp" route="route_ramp" begin="3420" end="3480" vehsPerHour="900" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_4" type="car_main" route="route_main" begin="3480" end="3540" vehsPerHour="5533" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_4" type="car_ramp" route="route_ramp" begin="3480" end="3540" vehsPerHour="740" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_5" type="car_main" route="route_main" begin="3540" end="3600" vehsPerHour="5400" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_5" type="car_ramp" route="route_ramp" begin="3540" end="3600" vehsPerHour="580" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_6" type="car_main" route="route_main" begin="3600" end="3660" vehsPerHour="5267" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="ramp_cool_flat" type="car_ramp" route="route_ramp" begin="3600" end="4200" vehsPerHour="500" departSpeed="random" departLane="best" departPos="free"/>
-
-    <flow id="main_cool_7" type="car_main" route="route_main" begin="3660" end="3720" vehsPerHour="5133" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_8" type="car_main" route="route_main" begin="3720" end="3780" vehsPerHour="5000" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_9" type="car_main" route="route_main" begin="3780" end="3840" vehsPerHour="4867" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_10" type="car_main" route="route_main" begin="3840" end="3900" vehsPerHour="4733" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_11" type="car_main" route="route_main" begin="3900" end="3960" vehsPerHour="4600" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_12" type="car_main" route="route_main" begin="3960" end="4020" vehsPerHour="4467" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_13" type="car_main" route="route_main" begin="4020" end="4080" vehsPerHour="4333" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_14" type="car_main" route="route_main" begin="4080" end="4140" vehsPerHour="4200" departSpeed="random" departLane="best" departPos="free"/>
-    <flow id="main_cool_15" type="car_main" route="route_main" begin="4140" end="4200" vehsPerHour="4067" departSpeed="random" departLane="best" departPos="free"/>
-
+        <flow id="main_cool" type="car_main" route="route_main" begin="3300" end="4200" vehsPerHour="4000" departSpeed="random" departLane="best" departPos="free"/>
+        <flow id="ramp_cool" type="car_ramp" route="route_ramp" begin="3300" end="4200" vehsPerHour="500" departSpeed="random" departLane="best" departPos="free"/> -->
 
 </routes>
