@@ -3,7 +3,7 @@ import pickle
 import torch
 
 from config import (
-    STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
+    RAMP_DETS, STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
     UPSTREAM_DETS, DOWNSTREAM_DETS, RAMP_ARR_DETS, RAMP_DEP_DETS, TLS_ID
 )
 from env import RampMeterEnv
@@ -18,7 +18,7 @@ def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd, tls_id=TLS_ID, upstream_dets=UPSTREAM_DETS,
         downstream_dets=DOWNSTREAM_DETS, ramp_arr_dets=RAMP_ARR_DETS,
-        ramp_dep_dets=RAMP_DEP_DETS, ramp_edge="edge_ramp_2"
+        ramp_dep_dets=RAMP_DEP_DETS, ramp_detector=RAMP_DETS
     )
 
     if no_control:
@@ -63,12 +63,12 @@ if __name__ == "__main__":
     tts_alinea, mq_alinea, sb_alinea = run_evaluation(alinea=True)
     print(f"ALINEA     -> TTS: {tts_alinea:.2f} h | Max Queue: {mq_alinea} | Spillback: {sb_alinea}")
 
-    base_model = os.path.join("models", "model_ep250.pth")
-    base_tracker = os.path.join("models", "state_tracker_ep250.pkl")
+    base_model = os.path.join("models", "model_ep500.pth")
+    base_tracker = os.path.join("models", "state_tracker_ep500.pkl")
     tts_base, mq_base, sb_base = run_evaluation(model_path=base_model, tracker_path=base_tracker)
     print(f"RL-Based   -> TTS: {tts_base:.2f} h | Max Queue: {mq_base} | Spillback: {sb_base}")
 
-    rep_model = os.path.join("models_replacement", "model_ep100.pth")
-    rep_tracker = os.path.join("models_replacement", "state_tracker_ep100.pkl")
+    rep_model = os.path.join("models_replacement", "model_ep500.pth")
+    rep_tracker = os.path.join("models_replacement", "state_tracker_ep500.pkl")
     tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
     print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")

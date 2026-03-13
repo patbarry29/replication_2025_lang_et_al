@@ -64,7 +64,7 @@
     <route id="ramp3_to_end" edges="edge_ramp_2_3 edge_ramp_1_3 edge_merge_3 edge_mainline_6 edge_out_3 edge_mainline_7 edge_merge_4 edge_mainline_8"/>
 
     <route id="ramp4_to_end" edges="edge_ramp_2_4 edge_ramp_1_4 edge_merge_4 edge_mainline_8"/>
-
+<!--
     <flow id="main_w_off1" type="car_main" route="main_to_off1" begin="0" end="600" vehsPerHour="450" departLane="best" departSpeed="max"/>
     <flow id="main_w_off2" type="car_main" route="main_to_off2" begin="0" end="600" vehsPerHour="450" departLane="best" departSpeed="max"/>
     <flow id="main_w_off3" type="car_main" route="main_to_off3" begin="0" end="600" vehsPerHour="450" departLane="best" departSpeed="max"/>
@@ -83,36 +83,36 @@
     <flow id="r3_w_off4" type="car_ramp" route="ramp3_to_off4" begin="0" end="600" vehsPerHour="150" departLane="best" departSpeed="max"/>
     <flow id="r3_w_end" type="car_ramp" route="ramp3_to_end" begin="0" end="600" vehsPerHour="300" departLane="best" departSpeed="max"/>
 
-    <flow id="r4_w_end" type="car_ramp" route="ramp4_to_end" begin="0" end="600" vehsPerHour="500" departLane="best" departSpeed="max"/>
+    <flow id="r4_w_end" type="car_ramp" route="ramp4_to_end" begin="0" end="600" vehsPerHour="500" departLane="best" departSpeed="max"/> -->
 
 
-    <flow id="main_p_off1" type="car_main" route="main_to_off1" begin="600" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
-    <flow id="main_p_off2" type="car_main" route="main_to_off2" begin="600" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
-    <flow id="main_p_off3" type="car_main" route="main_to_off3" begin="600" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
-    <flow id="main_p_off4" type="car_main" route="main_to_off4" begin="600" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
-    <flow id="main_p_end" type="car_main" route="main_to_end" begin="600" end="3000" vehsPerHour="4500" departLane="best" departSpeed="max"/>
+    <!-- <flow id="main_p_off1" type="car_main" route="main_to_off1" begin="0" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
+    <flow id="main_p_off2" type="car_main" route="main_to_off2" begin="0" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
+    <flow id="main_p_off3" type="car_main" route="main_to_off3" begin="0" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/>
+    <flow id="main_p_off4" type="car_main" route="main_to_off4" begin="0" end="3000" vehsPerHour="750" departLane="best" departSpeed="max"/> -->
+    <flow id="main_p_end" type="car_main" route="main_to_end" begin="0" end="3000" vehsPerHour="4500" departLane="best" departSpeed="max"/>
 
-    <flow id="r1_p_off2" type="car_ramp" route="ramp1_to_off2" begin="600" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
-    <flow id="r1_p_off3" type="car_ramp" route="ramp1_to_off3" begin="600" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
-    <flow id="r1_p_off4" type="car_ramp" route="ramp1_to_off4" begin="600" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
-    <flow id="r1_p_end" type="car_ramp" route="ramp1_to_end" begin="600" end="3000" vehsPerHour="600" departLane="best" departSpeed="max"/>
+    <!-- <flow id="r1_p_off2" type="car_ramp" route="ramp1_to_off2" begin="0" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
+    <flow id="r1_p_off3" type="car_ramp" route="ramp1_to_off3" begin="0" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
+    <flow id="r1_p_off4" type="car_ramp" route="ramp1_to_off4" begin="0" end="3000" vehsPerHour="200" departLane="best" departSpeed="max"/>
+    <flow id="r1_p_end" type="car_ramp" route="ramp1_to_end" begin="0" end="3000" vehsPerHour="600" departLane="best" departSpeed="max"/>
 
-    <flow id="r2_p_off3" type="car_ramp" route="ramp2_to_off3" begin="600" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
-    <flow id="r2_p_off4" type="car_ramp" route="ramp2_to_off4" begin="600" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
-    <flow id="r2_p_end" type="car_ramp" route="ramp2_to_end" begin="600" end="3000" vehsPerHour="700" departLane="best" departSpeed="max"/>
+    <flow id="r2_p_off3" type="car_ramp" route="ramp2_to_off3" begin="0" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
+    <flow id="r2_p_off4" type="car_ramp" route="ramp2_to_off4" begin="0" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
+    <flow id="r2_p_end" type="car_ramp" route="ramp2_to_end" begin="0" end="3000" vehsPerHour="700" departLane="best" departSpeed="max"/>
 
-    <flow id="r3_p_off4" type="car_ramp" route="ramp3_to_off4" begin="600" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
-    <flow id="r3_p_end" type="car_ramp" route="ramp3_to_end" begin="600" end="3000" vehsPerHour="600" departLane="best" departSpeed="max"/>
+    <flow id="r3_p_off4" type="car_ramp" route="ramp3_to_off4" begin="0" end="3000" vehsPerHour="300" departLane="best" departSpeed="max"/>
+    <flow id="r3_p_end" type="car_ramp" route="ramp3_to_end" begin="0" end="3000" vehsPerHour="600" departLane="best" departSpeed="max"/>
 
-    <flow id="r4_p_end" type="car_ramp" route="ramp4_to_end" begin="600" end="3000" vehsPerHour="1100" departLane="best" departSpeed="max"/>
+    <flow id="r4_p_end" type="car_ramp" route="ramp4_to_end" begin="0" end="3000" vehsPerHour="1100" departLane="best" departSpeed="max"/>
 
     <flow id="main_c_off1" type="car_main" route="main_to_off1" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/>
     <flow id="main_c_off2" type="car_main" route="main_to_off2" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/>
     <flow id="main_c_off3" type="car_main" route="main_to_off3" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/>
-    <flow id="main_c_off4" type="car_main" route="main_to_off4" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/>
+    <flow id="main_c_off4" type="car_main" route="main_to_off4" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/> -->
     <flow id="main_c_end" type="car_main" route="main_to_end" begin="3000" end="3600" vehsPerHour="2400" departLane="best" departSpeed="max"/>
 
-    <flow id="r1_c_off2" type="car_ramp" route="ramp1_to_off2" begin="3000" end="3600" vehsPerHour="80" departLane="best" departSpeed="max"/>
+    <!-- <flow id="r1_c_off2" type="car_ramp" route="ramp1_to_off2" begin="3000" end="3600" vehsPerHour="80" departLane="best" departSpeed="max"/>
     <flow id="r1_c_off3" type="car_ramp" route="ramp1_to_off3" begin="3000" end="3600" vehsPerHour="80" departLane="best" departSpeed="max"/>
     <flow id="r1_c_off4" type="car_ramp" route="ramp1_to_off4" begin="3000" end="3600" vehsPerHour="80" departLane="best" departSpeed="max"/>
     <flow id="r1_c_end" type="car_ramp" route="ramp1_to_end" begin="3000" end="3600" vehsPerHour="260" departLane="best" departSpeed="max"/>
@@ -124,5 +124,5 @@
     <flow id="r3_c_off4" type="car_ramp" route="ramp3_to_off4" begin="3000" end="3600" vehsPerHour="100" departLane="best" departSpeed="max"/>
     <flow id="r3_c_end" type="car_ramp" route="ramp3_to_end" begin="3000" end="3600" vehsPerHour="200" departLane="best" departSpeed="max"/>
 
-    <flow id="r4_c_end" type="car_ramp" route="ramp4_to_end" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/>
+    <flow id="r4_c_end" type="car_ramp" route="ramp4_to_end" begin="3000" end="3600" vehsPerHour="400" departLane="best" departSpeed="max"/> -->
 </routes>

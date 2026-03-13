@@ -1,4 +1,4 @@
-import numpy as np
+from action_replacement import calculate_penalty
 from utils import format_state_vector
 from config import MAX_TTS, AVG_TTS
 
@@ -17,6 +17,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
     for step in range(control_steps):
         # 1. Get action from controller
         action_ratio, log_prob, value, raw_action, state_tensor, extras = controller.execute_control(raw_state, is_training)
+        replaced = extras[0]
 
         green_duration = int(action_ratio * sim_steps_per_control)
         red_duration = sim_steps_per_control - green_duration
@@ -24,6 +25,12 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
         # 2. Step environment
         step_tts = env.apply_action_and_get_tts(green_duration, red_duration)
         reward = (MAX_TTS - step_tts) / AVG_TTS
+        current_queue = raw_state[6]
+        if replaced:
+            penalty = calculate_penalty(current_queue, raw_state[7], action_ratio)
+            reward = reward - penalty
+        if not controller.use_replacement:
+            reward = reward - (current_queue*0.01)
 
         # 3. Get next state
         next_state_dict = env.get_traffic_state(sim_steps_per_control)
@@ -40,7 +47,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
         history["queues"].append(final_queue)
         history["downstream_speeds"].append(next_state_dict["downstream"]["speed"])
         history["lower_bound"].append(extras[1])
-        num_replacements += extras[0]
+        num_replacements += replaced
 
         if is_training:
             trajectory["states"].append(state_tensor)
@@ -52,7 +59,7 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
 
         raw_state = next_raw_state
 
-        if done:
+        if done and is_training:
             break
 
     # mean_reward = np.mean(trajectory["rewards"])

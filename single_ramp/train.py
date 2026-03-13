@@ -133,19 +133,6 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
     plt.ioff()
     plt.close(fig)
 
-    # plotted = False
-
-    # for i, ep_lb in enumerate(history_lb):
-    #     if max(ep_lb) > 0.1:
-    #         # plt.plot(history_actions[i], label=f"Episode {i}")
-    #         plotted = True
-
-    plt.plot(history_lb[-1], label=f"Episode {num_episodes}")
-    # if plotted:
-    #     plt.legend()
-
-    plt.show()
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_replacement", action="store_true")

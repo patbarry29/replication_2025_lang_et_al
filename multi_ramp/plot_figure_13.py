@@ -1,145 +1,170 @@
+from tqdm import tqdm
 import traci
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-# =========================
+# =============================================================================
 # CONFIGURATION
-# =========================
+# =============================================================================
+
 SUMO_BINARY = "sumo"
-SUMO_PATH = "simulation.sumocfg"
+SUMO_CONFIG = "simulation.sumocfg"
 STEP_LENGTH = 1
 SIM_END = 4500
-FREE_FLOW_SPEED = 27.78  # m/s
+FREE_FLOW_SPEED = 27.78
 
-detector_ids = ["det_ramp_queue_0", "det_ramp_queue_1"]
+# BACKGROUND_FLOW = 8100 / 3600.0
+LANES = 4
+MARKER_EVERY = 15
+X_PADDING = 100
 
-# Background flow from paper
-q0 = 8100 / 3600.0  # veh/sec
-
-# Define structure for the 4 subplots
-plots_config = {
-    "Area 4": {
-        "title": "(a)",
-        "loc": (0, 0),
-        "detectors": {
-            "+6822 m": {"ids": [f"det_a4_up_{i}" for i in range(4)], "dist": 0},
-            "+7335 m": {"ids": [f"det_a4_dn1_{i}" for i in range(4)], "dist": 513},
-            "+7635 m": {"ids": [f"det_a4_dn2_{i}" for i in range(4)], "dist": 513 + 300}
-        }
-    },
-    "Area 2": {
-        "title": "(b)",
-        "loc": (0, 1),
-        "detectors": {
-            "+3916 m": {"ids": [f"det_a2_up_{i}" for i in range(4)], "dist": 0},
-            "+4254 m": {"ids": [f"det_a2_dn1_{i}" for i in range(5)], "dist": 338},
-            "+4404 m": {"ids": [f"det_a2_dn2_{i}" for i in range(4)], "dist": 338 + 250}
-        }
-    },
-    "Area 3": {
-        "title": "(c)",
-        "loc": (1, 0),
-        "detectors": {
-            "+5221 m": {"ids": [f"det_a3_up_{i}" for i in range(4)], "dist": 0},
-            "+5470 m": {"ids": [f"det_a3_dn1_{i}" for i in range(4)], "dist": 249},
-            "+5620 m": {"ids": [f"det_a3_dn2_{i}" for i in range(5)], "dist": 249 + 250}
-        }
-    },
-    "Area 1": {
-        "title": "(d)",
-        "loc": (1, 1),
-        "detectors": {
-            "+955 m": {"ids": [f"det_a1_up_{i}" for i in range(4)], "dist": 0},
-            "+1317 m": {"ids": [f"det_a1_dn1_{i}" for i in range(4)], "dist": 362},
-            "+1652 m": {"ids": [f"det_a1_dn2_{i}" for i in range(4)], "dist": 362 + 335}
-        }
-    }
-}
-
-# =========================
-# INITIALIZATION
-# =========================
-traci.start([SUMO_BINARY, "-c", SUMO_PATH])
-
-times = []
-records = {}
-
-for area, config in plots_config.items():
-    records[area] = {}
-    for label in config["detectors"]:
-        records[area][label] = {"cumulative": 0, "history": []}
-
-# =========================
-# SIMULATION LOOP
-# =========================
-while traci.simulation.getTime() < SIM_END:
-    traci.simulationStep()
-    t = traci.simulation.getTime()
-    times.append(t)
-
-    for area, config in plots_config.items():
-        for label, det_info in config["detectors"].items():
-            step_count = 0
-            for det in det_info["ids"]:
-                step_count += traci.inductionloop.getLastStepVehicleNumber(det)
-
-            records[area][label]["cumulative"] += step_count
-            records[area][label]["history"].append(records[area][label]["cumulative"])
-
-traci.close()
-
-# =========================
-# POST-PROCESSING & PLOTTING
-# =========================
-times = np.array(times)
-fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-
-styles = [
-    {'color': '#d62728', 'marker': '+', 'markersize': 4, 'linewidth': 1},
-    {'color': '#ffbf0e', 'marker': '.', 'markersize': 4, 'linewidth': 1},
-    {'color': '#1f77b4', 'marker': 'x', 'markersize': 4, 'linewidth': 1}
+DETECTOR_STYLES = [
+    {"color": "#d62728", "marker": "^", "linewidth": 1},
+    {"color": "#ffbf0e", "marker": ".", "linewidth": 1},
+    {"color": "#1f77b4", "marker": "x", "linewidth": 1},
 ]
 
-marker_interval = 15
+RAMPS = {
+    "Ramp 1": {
+        "loc": (1, 1),
+        "x_range": (1400, 3600),
+        "bg_flow": 10356,
+        "detectors": {
+            # ADD YOUR RAMP DETECTOR ID TO THE UPSTREAM LIST
+            "+955 m":  {"ids": [f"det_a1_up_{i}"  for i in range(4)], "shift": 0},
+            "+1317 m": {"ids": [f"det_a1_dn1_{i}" for i in range(4)],   "shift": 30},
+            "+1652 m": {"ids": [f"det_a1_dn2_{i}" for i in range(4)],   "shift": 58},
+        },
+    },
+    "Ramp 2": {
+        "loc": (0, 1),
+        "x_range": (2100, 4600),
+        "bg_flow": 9432,
+        "detectors": {
+            "+3916 m": {"ids": [f"det_a2_up_{i}"  for i in range(4)], "shift": 0},
+            "+4254 m": {"ids": [f"det_a2_dn1_{i}" for i in range(1, 5)], "shift": 29},
+            "+4404 m": {"ids": [f"det_a2_dn2_{i}" for i in range(4)],   "shift": 51},
+        },
+    },
+    "Ramp 3": {
+        "loc": (1, 0),
+        "x_range": (1500, 3900),
+        "bg_flow": 8472,
+        "detectors": {
+            "+5221 m": {"ids": [f"det_a3_up_{i}"  for i in range(4)]
+                        , "shift": 0},
+            "+5470 m": {"ids": [f"det_a3_dn1_{i}" for i in range(4)],   "shift": 22},
+            "+5620 m": {"ids": [f"det_a3_dn2_{i}" for i in range(1, 5)], "shift": 43},
+        },
+    },
+    "Ramp 4": {
+        "loc": (0, 0),
+        "x_range": (1000, 3900),
+        "bg_flow": 6204,
+        "detectors": {
+            "+6822 m": {"ids": [f"det_a4_up_{i}"  for i in range(4)], "shift": 0},
+            "+7335 m": {"ids": [f"det_a4_dn1_{i}" for i in range(4)],   "shift": 39},
+            "+7635 m": {"ids": [f"det_a4_dn2_{i}" for i in range(4)],   "shift": 62},
+        },
+    },
+}
 
-for area, config in plots_config.items():
-    row, col = config["loc"]
-    ax = axs[row, col]
 
-    for idx, (label, det_info) in enumerate(config["detectors"].items()):
-        N = np.array(records[area][label]["history"])
-        lane_count = len(det_info["ids"])
+# =============================================================================
+# SIMULATION
+# =============================================================================
 
-        # Convert to per-lane cumulative
-        N_lane = N / lane_count
+def run_simulation():
+    """Run SUMO and collect cumulative vehicle counts for every detector."""
+    traci.start([SUMO_BINARY, "-c", SUMO_CONFIG])
 
-        # Calculate background flow offset based on uniform lane assumption
-        q0_lane = q0 / 4.0
-        N_mod = N_lane - (q0_lane * times)
+    times = []
+    # Structure: counts[ramp][label] = running cumulative count
+    counts = {
+        ramp: {label: 0 for label in cfg["detectors"]}
+        for ramp, cfg in RAMPS.items()
+    }
+    history = {
+        ramp: {label: [] for label in cfg["detectors"]}
+        for ramp, cfg in RAMPS.items()
+    }
 
-        # Apply time shift based on relative distance and free-flow speed
-        shift_seconds = det_info["dist"] / FREE_FLOW_SPEED
-        shift_steps = int(shift_seconds / STEP_LENGTH)
+    for i in tqdm(range(SIM_END)):
+        traci.simulationStep()
+        times.append(i)
 
-        if shift_steps > 0:
-            N_mod = N_mod[shift_steps:]
-            t_mod = times[:-shift_steps]
-        else:
-            t_mod = times
+        for ramp, cfg in RAMPS.items():
+            for label, det in cfg["detectors"].items():
+                step_count = sum(
+                    traci.inductionloop.getLastStepVehicleNumber(d)
+                    for d in det["ids"]
+                )
+                counts[ramp][label] += step_count
+                history[ramp][label].append(counts[ramp][label])
 
-        # Filter out 0 points or negative initialization artifacts to mimic plot start times
-        mask = t_mod > 1000
+    traci.close()
+    return np.array(times), history
 
-        ax.plot(t_mod[mask][::marker_interval],
-                N_mod[mask][::marker_interval],
-                label=label,
-                **styles[idx])
 
+# =============================================================================
+# PLOTTING
+# =============================================================================
+
+def compute_modified_counts(raw_counts, times, shift, lane_count, bg_flow):
+    q0_veh_per_sec_per_lane = (bg_flow / 3600.0) / lane_count
+
+    N = (np.array(raw_counts) / lane_count) - (q0_veh_per_sec_per_lane * times)
+    t_shifted = times - shift
+
+    return t_shifted, N
+
+def plot_ramp(ax, ramp_name, cfg, times, history):
+    x_min, x_max = cfg["x_range"]
+
+    for idx, (label, det) in enumerate(cfg["detectors"].items()):
+        # Force normalisation by mainline lanes only
+        lane_count = LANES
+
+        t, N = compute_modified_counts(
+            history[ramp_name][label],
+            times,
+            det["shift"],
+            lane_count,
+            cfg["bg_flow"]
+        )
+
+        in_range = (t >= x_min) & (t <= x_max)
+        t_plot = t[in_range][::MARKER_EVERY]
+        N_plot = N[in_range][::MARKER_EVERY]
+
+        ax.plot(t_plot, N_plot, label=label, **DETECTOR_STYLES[idx])
+
+    ax.set_xlim(x_min - X_PADDING, x_max + X_PADDING)
+    ax.margins(y=0.05)
     ax.set_xlabel("Simulation time (s)", fontsize=11)
     ax.set_ylabel("$N'(x,t) = N(x,t) - q_0 \\times t$", fontsize=11)
-    ax.set_title(config["title"], y=-0.2, fontsize=12)
+    ax.set_title(ramp_name, y=-0.2, fontsize=12)
     ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0, -0.4))
 
-plt.subplots_adjust(hspace=0.4, wspace=0.3)
-plt.show()
+
+def make_figure(times, history):
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10))
+
+    times = np.asarray(times)
+
+    for ramp_name, cfg in RAMPS.items():
+        row, col = cfg["loc"]
+        plot_ramp(axs[row, col], ramp_name, cfg, times, history)
+
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    plt.show()
+
+
+# =============================================================================
+# MAIN
+# =============================================================================
+
+if __name__ == "__main__":
+    times, history = run_simulation()
+    make_figure(times, history)
