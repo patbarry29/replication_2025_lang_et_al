@@ -3,7 +3,7 @@ import pickle
 import time
 import numpy as np
 import torch
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 from config import (
     RAMP_DETS, STATE_DIM, SUMO_PATH, CONTROL_STEPS_PER_EPISODE, SIM_STEPS_PER_CONTROL,
@@ -118,6 +118,6 @@ def plot_evaluation(hist):
     plt.show()
 
 if __name__ == "__main__":
-    model_path = os.path.join("models_replacement","model_ep100.pth")
-    tracker_path = os.path.join("models_replacement","state_tracker_ep100.pkl")
+    model_path = os.path.join("models","model_ep500.pth")
+    tracker_path = os.path.join("models","state_tracker_ep500.pkl")
     visualise(model_path, tracker_path)

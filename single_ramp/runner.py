@@ -26,10 +26,12 @@ def run_episode(env, controller, control_steps, sim_steps_per_control, is_traini
         step_tts = env.apply_action_and_get_tts(green_duration, red_duration)
         reward = (MAX_TTS - step_tts) / AVG_TTS
         current_queue = raw_state[6]
-        if replaced:
+
+        use_replacement = getattr(controller, 'use_replacement', False)
+        if use_replacement and replaced:
             penalty = calculate_penalty(current_queue, raw_state[7], action_ratio)
             reward = reward - penalty
-        if not controller.use_replacement:
+        elif not use_replacement:
             reward = reward - (current_queue*0.01)
 
         # 3. Get next state

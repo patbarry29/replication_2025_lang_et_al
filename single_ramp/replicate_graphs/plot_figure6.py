@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
+from utils import insertVehicles
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 SUMO_PATH = os.path.join("..", "sumo_network", "data", "simulation.sumocfg")
@@ -59,6 +61,7 @@ records = {k: [] for k in detector_groups}
 times = []
 
 while traci.simulation.getTime() < SIM_END:
+    insertVehicles()
     traci.simulationStep()
     t = traci.simulation.getTime()
     times.append(t)
