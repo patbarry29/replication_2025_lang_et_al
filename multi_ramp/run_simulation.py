@@ -89,22 +89,26 @@ def getAllVehCounts(history):
 
 ramp_times = [0] + list(np.arange(600, 3601, step=300)) + [SIM_END]
 
-ramp1_demand = [9450, 9450, 9500, 9500, 9500, 9500, 9500, 9450, 9400, 9400, 8900, 8250, 8250]
-ramp2_demand = [8250, 8250, 8350, 8350, 8350, 8350, 8350, 8250, 8150, 8150, 8150, 8050, 8050]
-ramp3_demand = [8100, 8100, 8175, 8175, 8175, 8175, 8175, 8175, 8100, 8100, 8100, 8100, 8100]
-ramp4_demand = [7925, 7925, 8000, 8000, 8000, 8000, 8000, 7900, 7775, 7775, 7775, 7775, 7775]
+ramp_times = [0] + list(np.arange(600, 3601, step=300)) + [SIM_END]
+
+ramp_demands = {
+    1:  [1700, 2175, 2175, 2175, 2175, 2175, 2175, 2175, 1400, 1400, 1400, 1400, 1400],
+    2:  [1030, 1243, 1243, 1243, 1243, 1243, 1243, 1080, 960, 960, 960, 960, 960],
+    3:  [1103, 1292, 1292, 1292, 1292, 1292, 1292, 1103, 1086, 1086, 1086, 1046, 1046],
+    4:  [1313, 2221, 2221, 2221, 2221, 2221, 2221, 1313, 1300, 1300, 1275, 1250, 1250]
+}
 
 def get_ramp1_flow(t):
-    return np.interp(t, ramp_times, ramp1_demand)
+    return np.interp(t, ramp_times, ramp_demands[1])
 
 def get_ramp2_flow(t):
-    return np.interp(t, ramp_times, ramp2_demand)
+    return np.interp(t, ramp_times, ramp_demands[2])
 
 def get_ramp3_flow(t):
-    return np.interp(t, ramp_times, ramp3_demand)
+    return np.interp(t, ramp_times, ramp_demands[3])
 
 def get_ramp4_flow(t):
-    return np.interp(t, ramp_times, ramp4_demand)
+    return np.interp(t, ramp_times, ramp_demands[4])
 
 routes = {
     1:  ["ramp1_to_end", "ramp1_to_off2", "ramp1_to_off3", "ramp1_to_off4"],
