@@ -62,11 +62,12 @@ class RLController(BaseController):
             log_prob = dist.log_prob(action)
             action_ratio = torch.clamp(action, 0.0, 1.0).item()
 
+        prev_demand = raw_state_list[7]  # index 7 is ramp_arr
+        curr_queue = raw_state_list[6]   # index 6 is queue length
+        lower_bound = calculate_lower_bound(prev_demand, curr_queue)
+        replaced = int(action_ratio < lower_bound)
+
         if self.use_replacement:
-            prev_demand = raw_state_list[7]  # index 7 is ramp_arr
-            curr_queue = raw_state_list[6]   # index 6 is queue length
-            lower_bound = calculate_lower_bound(prev_demand, curr_queue)
-            replaced = int(action_ratio < lower_bound)
             action_ratio = max(action_ratio, lower_bound)
 
         return action_ratio, log_prob, value, action, state_tensor, (replaced, lower_bound)

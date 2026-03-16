@@ -13,7 +13,7 @@ from utils import normalize_static
 from model import SharedActorCritic
 
 def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no_control=False, alinea=False):
-    sumo_cmd = ["sumo-gui", "-c", SUMO_PATH, "--no-step-log", "true"]
+    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true"]
 
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd, tls_id=TLS_ID, upstream_dets=UPSTREAM_DETS,
@@ -60,15 +60,15 @@ if __name__ == "__main__":
     tts_nc, mq_nc, sb_nc = run_evaluation(no_control=True)
     print(f"No-Control -> TTS: {tts_nc:.2f} h | Max Queue: {mq_nc} | Spillback: {sb_nc}")
 
-    # tts_alinea, mq_alinea, sb_alinea = run_evaluation(alinea=True)
-    # print(f"ALINEA     -> TTS: {tts_alinea:.2f} h | Max Queue: {mq_alinea} | Spillback: {sb_alinea}")
+    tts_alinea, mq_alinea, sb_alinea = run_evaluation(alinea=True)
+    print(f"ALINEA     -> TTS: {tts_alinea:.2f} h | Max Queue: {mq_alinea} | Spillback: {sb_alinea}")
 
-    # base_model = os.path.join("models", "model_ep500.pth")
-    # base_tracker = os.path.join("models", "state_tracker_ep500.pkl")
-    # tts_base, mq_base, sb_base = run_evaluation(model_path=base_model, tracker_path=base_tracker)
-    # print(f"RL-Based   -> TTS: {tts_base:.2f} h | Max Queue: {mq_base} | Spillback: {sb_base}")
+    base_model = os.path.join("models", "model_ep500.pth")
+    base_tracker = os.path.join("models", "state_tracker_ep500.pkl")
+    tts_base, mq_base, sb_base = run_evaluation(model_path=base_model, tracker_path=base_tracker)
+    print(f"RL-Based   -> TTS: {tts_base:.2f} h | Max Queue: {mq_base} | Spillback: {sb_base}")
 
-    # rep_model = os.path.join("models_replacement", "model_ep500.pth")
-    # rep_tracker = os.path.join("models_replacement", "state_tracker_ep500.pkl")
-    # tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
-    # print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")
+    rep_model = os.path.join("models_replacement", "model_ep500.pth")
+    rep_tracker = os.path.join("models_replacement", "state_tracker_ep500.pkl")
+    tts_rep, mq_rep, sb_rep = run_evaluation(model_path=rep_model, tracker_path=rep_tracker, use_replacement=True)
+    print(f"RL+Replace -> TTS: {tts_rep:.2f} h | Max Queue: {mq_rep} | Spillback: {sb_rep}")
