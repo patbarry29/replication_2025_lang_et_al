@@ -1,4 +1,3 @@
-
 from config import RAMP_CAPACITY_VEH_S, SIM_STEPS_PER_CONTROL, W_MAX, ALPHA, R_MIN_RATIO
 
 def calculate_lower_bound(demand_prev_veh_s, current_queue):

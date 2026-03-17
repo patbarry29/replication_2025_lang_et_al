@@ -67,7 +67,7 @@ class RLController(BaseController):
         lower_bound = calculate_lower_bound(prev_demand, curr_queue)
         replaced = int(action_ratio < lower_bound)
 
-        if self.use_replacement:
+        if self.use_replacement and replaced:
             action_ratio = max(action_ratio, lower_bound)
 
-        return action_ratio, log_prob, value, action, state_tensor, (replaced, lower_bound)
+        return action_ratio, log_prob, value.item(), action, state_tensor, (replaced, lower_bound)

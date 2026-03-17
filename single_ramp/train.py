@@ -53,7 +53,7 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
     line, ax, fig = init_plot(use_replacement)
     all_scores, history_steps, history_lengths, history_tts = [], [], [], []
     history_actions, history_replacement, history_lb = [], [], []
-    # reward_history = {}
+    reward_history = {}
     cumulative_steps = 0
 
     for episode in range(1, num_episodes+1):
@@ -102,20 +102,20 @@ def train(use_replacement, seed, num_episodes, dynamic_norm):
 
         # Save checkpoints
         if episode % 10 == 0:
-            # reward_history[episode] = rewards.copy()
+            reward_history[episode] = rewards.copy()
 
-            # fig_reward, ax_reward = plt.subplots()
+            fig_reward, ax_reward = plt.subplots()
 
-            # for ep, rew in reward_history.items():
-            #     ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
+            for ep, rew in reward_history.items():
+                ax_reward.plot(np.arange(len(rew)), rew, label=f"Episode {ep}")
 
-            # ax_reward.legend()
-            # ax_reward.axhline(0, linestyle="--", color="r", alpha=0.5)
-            # ax_reward.set_xlabel("Step")
-            # ax_reward.set_ylabel("Reward")
-            # ax_reward.set_title("Reward Comparison Across Episodes")
-            # fig_reward.savefig(os.path.join("plots", f"rewards_episode{episode}.png"))
-            # plt.close(fig_reward)
+            ax_reward.legend()
+            ax_reward.axhline(0, linestyle="--", color="r", alpha=0.5)
+            ax_reward.set_xlabel("Step")
+            ax_reward.set_ylabel("Reward")
+            ax_reward.set_title("Reward Comparison Across Episodes")
+            fig_reward.savefig(os.path.join("plots", f"rewards_episode{episode}.png"))
+            plt.close(fig_reward)
 
             torch.save(agent.state_dict(), os.path.join(model_dir, f"model_ep{episode}.pth"))
             with open(os.path.join(model_dir, f"state_tracker_ep{episode}.pkl"), "wb") as f:
