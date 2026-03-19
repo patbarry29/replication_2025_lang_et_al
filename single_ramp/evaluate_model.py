@@ -13,7 +13,7 @@ from utils import normalize_static
 from model import SharedActorCritic
 
 def run_evaluation(model_path=None, tracker_path=None, use_replacement=False, no_control=False, alinea=False):
-    sumo_cmd = ["sumo-gui", "-c", SUMO_PATH, "--no-step-log", "true"]
+    sumo_cmd = ["sumo", "-c", SUMO_PATH, "--no-step-log", "true"]
 
     env = RampMeterEnv(
         sumo_cmd=sumo_cmd, tls_id=TLS_ID, upstream_dets=UPSTREAM_DETS,

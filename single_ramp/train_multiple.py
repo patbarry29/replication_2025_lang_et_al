@@ -12,9 +12,9 @@ def run_single_experiment(args):
     variant = "replacement" if use_replacement else "baseline"
     print(f"Starting {variant} | seed {seed}...")
 
-    cmd = ["python", "train.py", "--seed", str(seed), "--num_episodes", str(250)]
+    cmd = ["python", "train.py", "--seed", str(seed), "--num_episodes", str(500)]
     if use_replacement:
-        cmd.append("--dynamic_norm")
+        cmd.append("--use_replacement")
 
     # Run silently to avoid terminal spam, only print on completion
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

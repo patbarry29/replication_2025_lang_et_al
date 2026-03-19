@@ -7,7 +7,7 @@
     <route id="route_ramp" edges="edge_virtual_ramp edge_ramp_2 edge_ramp_out edge_merge edge_downstream"/>
     
 
-    <flow id="flow_main" type="paper_car" route="route_main" begin="0" end="3600" vehsPerHour="9400" departLane="best" departSpeed="max"/>
-    <flow id="flow_ramp" type="paper_car" route="route_ramp" begin="0" end="3600" vehsPerHour="1600" departLane="best" departSpeed="max"/>
+    <flow id="flow_main" type="paper_car" route="route_main" begin="0" end="3600" vehsPerHour="7400" departLane="best" departSpeed="max"/>
+    <flow id="flow_ramp" type="paper_car" route="route_ramp" begin="0" end="3600" vehsPerHour="600" departLane="best" departSpeed="max"/>
     
 </routes>

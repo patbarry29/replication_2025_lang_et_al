@@ -20,3 +20,6 @@ tb_logs/
 models/
 models_replacement/
 .vscode/settings.json
+
+multi_ramp/plots
+single_ramp/plots
