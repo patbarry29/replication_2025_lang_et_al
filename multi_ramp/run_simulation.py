@@ -14,7 +14,7 @@ RAMPS = {
     "Ramp 1": {
         "loc": (1, 1),
         "x_range": (1400, 3600),
-        "q0": 10356,
+        "q0": 8196,
         "detectors": {
             "up":  {"ids": [f"det_a1_up_{i}"  for i in range(4)], "shift": 0},
             "down1": {"ids": [f"det_a1_dn1_{i}" for i in range(4)],   "shift": 30},
@@ -24,7 +24,7 @@ RAMPS = {
     "Ramp 2": {
         "loc": (0, 1),
         "x_range": (2100, 4600),
-        "q0": 9432,
+        "q0": 7584,
         "detectors": {
             "up": {"ids": [f"det_a2_up_{i}"  for i in range(4)], "shift": 0},
             "down1": {"ids": [f"det_a2_dn1_{i}" for i in range(1, 5)], "shift": 29},
@@ -34,7 +34,7 @@ RAMPS = {
     "Ramp 3": {
         "loc": (1, 0),
         "x_range": (1500, 3900),
-        "q0": 8472,
+        "q0": 7476,
         "detectors": {
             "up": {"ids": [f"det_a3_up_{i}"  for i in range(4)]
                         , "shift": 0},
@@ -45,7 +45,7 @@ RAMPS = {
     "Ramp 4": {
         "loc": (0, 0),
         "x_range": (1000, 3900),
-        "q0": 6204,
+        "q0": 6792,
         "detectors": {
             "up": {"ids": [f"det_a4_up_{i}"  for i in range(4)], "shift": 0},
             "down1": {"ids": [f"det_a4_dn1_{i}" for i in range(4)],   "shift": 39},
@@ -92,10 +92,10 @@ ramp_times = [0] + list(np.arange(600, 3601, step=300)) + [SIM_END]
 ramp_times = [0] + list(np.arange(600, 3601, step=300)) + [SIM_END]
 
 ramp_demands = {
-    1:  [1700, 2175, 2175, 2175, 2175, 2175, 2175, 2175, 1400, 1400, 1400, 1400, 1400],
-    2:  [1030, 1243, 1243, 1243, 1243, 1243, 1243, 1080, 960, 960, 960, 960, 960],
-    3:  [1103, 1292, 1292, 1292, 1292, 1292, 1292, 1103, 1086, 1086, 1086, 1046, 1046],
-    4:  [1313, 2221, 2221, 2221, 2221, 2221, 2221, 1313, 1300, 1300, 1275, 1250, 1250]
+    1:  [1700, 1700, 2000, 2000, 2000, 2000, 2000, 2000, 1400, 1400, 1400, 1400, 1400],
+    2:  [1030, 1030, 1243, 1243, 1243, 1243, 1243, 1080, 960, 960, 960, 960, 960],
+    3:  [1103, 1103, 1292, 1292, 1292, 1292, 1292, 1103, 1086, 1086, 1086, 1046, 1046],
+    4:  [1313, 1313, 2100, 2100, 2100, 2100, 2100, 1313, 1300, 1300, 1275, 1250, 1250]
 }
 
 def get_ramp1_flow(t):
@@ -111,16 +111,16 @@ def get_ramp4_flow(t):
     return np.interp(t, ramp_times, ramp_demands[4])
 
 routes = {
-    1:  ["ramp1_to_end", "ramp1_to_off2", "ramp1_to_off3", "ramp1_to_off4"],
+    1:  ["ramp1_to_end", "ramp1_to_off1", "ramp1_to_off2", "ramp1_to_off3", "ramp1_to_off4"],
     2:  ["ramp2_to_end", "ramp2_to_off3", "ramp2_to_off4"],
     3:  ["ramp3_to_end", "ramp3_to_off4"],
     4:  ["ramp4_to_end"]
 }
 
 probs = {
-    1:  [0.7, 0.1, 0.1, 0.1],
+    1:  [0.5, 0.2, 0.1, 0.1, 0.1],
     2:  [0.6, 0.2, 0.2],
-    3:  [0.8, 0.2],
+    3:  [0.7, 0.3],
     4:  [1.0]
 }
 

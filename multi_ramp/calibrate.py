@@ -1,9 +1,12 @@
+import numpy as np
+
 import traci
 
 SUMO_BINARY = "sumo"
 SUMO_CONFIG = "simulation.sumocfg"
 WARMUP_START = 500
 WARMUP_END = 600
+SIM_END = 4500
 
 AREAS = {
     "Area 1": {
@@ -48,6 +51,75 @@ AREAS = {
     },
 }
 
+ramp_times = [0] + list(np.arange(600, 3601, step=300)) + [SIM_END]
+
+ramp_demands = {
+    1:  [1700, 1700, 2175, 2175, 2175, 2175, 2175, 2175, 1400, 1400, 1400, 1400, 1400],
+    2:  [1030, 1030, 1243, 1243, 1243, 1243, 1243, 1080, 960, 960, 960, 960, 960],
+    3:  [1103, 1103, 1292, 1292, 1292, 1292, 1292, 1103, 1086, 1086, 1086, 1046, 1046],
+    4:  [1313, 1313, 2221, 2221, 2221, 2221, 2221, 1313, 1300, 1300, 1275, 1250, 1250]
+}
+
+# ramp_demands = {
+#     1:  [500]*13,
+#     2:  [500]*13,
+#     3:  [500]*13,
+#     4:  [2100]*13
+# }
+
+def get_ramp1_flow(t):
+    return np.interp(t, ramp_times, ramp_demands[1])
+
+def get_ramp2_flow(t):
+    return np.interp(t, ramp_times, ramp_demands[2])
+
+def get_ramp3_flow(t):
+    return np.interp(t, ramp_times, ramp_demands[3])
+
+def get_ramp4_flow(t):
+    return np.interp(t, ramp_times, ramp_demands[4])
+routes = {
+    1:  ["ramp1_to_end", "ramp1_to_off1", "ramp1_to_off2", "ramp1_to_off3", "ramp1_to_off4"],
+    2:  ["ramp2_to_end", "ramp2_to_off3", "ramp2_to_off4"],
+    3:  ["ramp3_to_end", "ramp3_to_off4"],
+    4:  ["ramp4_to_end"]
+}
+
+probs = {
+    1:  [0.6, 0.1, 0.1, 0.1, 0.1],
+    2:  [0.8, 0.1, 0.1],
+    3:  [0.9, 0.1],
+    4:  [1.0]
+}
+
+probs = {
+    1:  [0.5, 0.2, 0.1, 0.1, 0.1],
+    2:  [0.6, 0.2, 0.2],
+    3:  [0.7, 0.3],
+    4:  [1.0]
+}
+
+def insertRampVehicles(rampIndex, t):
+    fncs = {1: get_ramp1_flow, 2: get_ramp2_flow, 3: get_ramp3_flow, 4: get_ramp4_flow}
+
+    get_flow_fnc = fncs[rampIndex]
+
+    V = get_flow_fnc(t)
+    p = V / (3600 * 2)
+
+    for lane in range(2):
+        if np.random.random() < p:
+            route = np.random.choice(routes[rampIndex], p=probs[rampIndex])
+
+            traci.vehicle.add(f"ramp{rampIndex}_{t}_{lane}", route, typeID="car_ramp",
+                departLane="best", departPos="free", departSpeed="random")
+def insertVehicles():
+    t = traci.simulation.getTime()
+
+    for i in range(4):
+        insertRampVehicles(i+1, t)
+
+
 def calibrate():
     traci.start([SUMO_BINARY, "-c", SUMO_CONFIG])
 
@@ -55,6 +127,8 @@ def calibrate():
     speeds = {area: [] for area in AREAS}
 
     while traci.simulation.getTime() < WARMUP_END:
+        insertVehicles()
+
         traci.simulationStep()
         current_time = traci.simulation.getTime()
 
