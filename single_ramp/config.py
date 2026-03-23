@@ -28,7 +28,7 @@ STATE_MEANS = np.asarray([20.554, 18.0392, 1.9333, 8.6758, 26.1541, 4.4272, 0.13
 STATE_STDS = np.asarray([7.0051, 4.3702, 0.2053, 1.3078, 0.3666, 0.5736, 0.7316, 0.1372, 0.1332, 7.5])
 
 REPLACEMENT_HISTORY_PATH = os.path.join("..", "models_replacement", "training_history_replacement_seed42.pkl")
-BASELINE_HISTORY_PATH = os.path.join("..", "models", "training_history_baseline_seed42.pkl")
+BASELINE_HISTORY_PATH = os.path.join("..", "models", "v1_training_history_baseline_seed42.pkl")
 
 MAIN_T = [0, 600, 600.1, 3300, 3301, 4200]
 MAIN_VEH = [7400, 7400, 7900, 7900, 4000, 4000]

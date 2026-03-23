@@ -12,7 +12,7 @@ AREAS = {
     "Area 1": {
         "loc": (1, 1),
         "x_range": (1400, 3600),
-        "bg_flow": 8200,
+        "bg_flow": 8100,
         "detectors": {
             "+955 m":  {"ids": [f"det_a1_up_{i}"  for i in range(4)],   "dist": 0},
             "+1317 m": {"ids": [f"det_a1_dn1_{i}" for i in range(4)],   "dist": 362},
@@ -22,7 +22,7 @@ AREAS = {
     "Area 2": {
         "loc": (0, 1),
         "x_range": (2100, 4600),
-        "bg_flow": 8000,
+        "bg_flow": 8100,
         "detectors": {
             "+3916 m": {"ids": [f"det_a2_up_{i}"  for i in range(4)],   "dist": 0},
             "+4254 m": {"ids": [f"det_a2_dn1_{i}" for i in range(1, 5)], "dist": 338},
@@ -32,7 +32,7 @@ AREAS = {
     "Area 3": {
         "loc": (1, 0),
         "x_range": (1500, 3900),
-        "bg_flow": 8350,
+        "bg_flow": 8100,
         "detectors": {
             "+5221 m": {"ids": [f"det_a3_up_{i}"  for i in range(4)],   "dist": 0},
             "+5470 m": {"ids": [f"det_a3_dn1_{i}" for i in range(4)],   "dist": 249},
@@ -42,7 +42,7 @@ AREAS = {
     "Area 4": {
         "loc": (0, 0),
         "x_range": (1000, 3900),
-        "bg_flow": 9500,
+        "bg_flow": 8100,
         "detectors": {
             "+6822 m": {"ids": [f"det_a4_up_{i}"  for i in range(4)],   "dist": 0},
             "+7335 m": {"ids": [f"det_a4_dn1_{i}" for i in range(4)],   "dist": 513},
@@ -60,12 +60,12 @@ ramp_demands = {
     4:  [1313, 1313, 2221, 2221, 2221, 2221, 2221, 1313, 1300, 1300, 1275, 1250, 1250]
 }
 
-# ramp_demands = {
-#     1:  [500]*13,
-#     2:  [500]*13,
-#     3:  [500]*13,
-#     4:  [2100]*13
-# }
+ramp_demands = {
+    1:  [2175]*13,
+    2:  [1678]*13,
+    3:  [1503]*13,
+    4:  [2300]*13
+}
 
 def get_ramp1_flow(t):
     return np.interp(t, ramp_times, ramp_demands[1])
@@ -85,12 +85,12 @@ routes = {
     4:  ["ramp4_to_end"]
 }
 
-probs = {
-    1:  [0.6, 0.1, 0.1, 0.1, 0.1],
-    2:  [0.8, 0.1, 0.1],
-    3:  [0.9, 0.1],
-    4:  [1.0]
-}
+# probs = {
+#     1:  [0.6, 0.1, 0.1, 0.1, 0.1],
+#     2:  [0.8, 0.1, 0.1],
+#     3:  [0.9, 0.1],
+#     4:  [1.0]
+# }
 
 probs = {
     1:  [0.5, 0.2, 0.1, 0.1, 0.1],
